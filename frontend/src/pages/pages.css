@@ -1,0 +1,19 @@
+.search__content {
+	background: #000;
+	max-width: 1200px;
+	margin: 100px auto 0 auto;
+	padding: 30px 60px;
+	color: #fff;
+	height: 100vh;
+}
+
+.search {
+}
+
+input.search__item {
+	width: 90%;
+	display: block;
+	padding: 8px 12px;
+	outline: none;
+	margin-bottom: 10px;
+}

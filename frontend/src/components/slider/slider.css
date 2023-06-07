@@ -1,0 +1,19 @@
+.MuiButtonBase-root.MuiCardActionArea-root {
+	border: none !important;
+}
+
+.MuiTypography-root.MuiTypography-body1 {
+	border: none !important;
+	font-family: unset !important;
+}
+
+.makeStyles-cardSlider-2 {
+	max-width: 90% !important;
+}
+
+
+
+.MuiPaper-root.MuiCard-root.MuiPaper-elevation1.MuiPaper-rounded {
+	display: flex;
+	align-items: end;
+}

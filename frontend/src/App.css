@@ -1,0 +1,16 @@
+.caption h5,
+.caption p {
+	color: #fff;
+}
+
+.carousel__image {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+.App {
+	background-color: #000;
+}
+
+@media screen and (max-width: 920px) {
+}
