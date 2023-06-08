@@ -309,6 +309,7 @@ class CustomUserBackend(BaseBackend):
 
 
 class Message(models.Model): 
+    forum = models.ForeignKey("mainapp.Forum", verbose_name=("forum"), on_delete=models.CASCADE)
     user = models.ForeignKey("mainapp.User", verbose_name=("user"), on_delete=models.CASCADE)
     text = models.TextField(("text"))
 

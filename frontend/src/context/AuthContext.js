@@ -64,7 +64,6 @@ export const AuthProvider = ({ children }) => {
 		});
 		console.log(response.status);
 		if (response.status === 201) {
-			alert("Success!");
 			history("/login");
 		} else if (response.status === 400) {
 			let error = await response.json();

@@ -8,15 +8,15 @@ from .views import MyTokenObtainPairVew
 
 urlpatterns = [
     path('', index, name='index'),
-    path('api/token/', MyTokenObtainPairVew.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/carousel/', CarouselListView.as_view(), name='carousel'),
-    path('api/category/', CategoryListView.as_view(), name='category'),
-    path('api/movies/', MoviesListView.as_view(), name='movies'),
-    path('api/collections/', CollectionListView.as_view(), name='collections'),
-    path('api/users/', UserListView.as_view(), name='users'),
-    path('api/news/', NewsListView.as_view(), name='news'),
-    path('api/history/', HistoyUpdate.as_view(), name='history'),
+    path('/token/', MyTokenObtainPairVew.as_view(), name='token_obtain_pair'),
+    path('/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('/carousel/', CarouselListView.as_view(), name='carousel'),
+    path('/category/', CategoryListView.as_view(), name='category'),
+    path('/movies/', MoviesListView.as_view(), name='movies'),
+    path('/collections/', CollectionListView.as_view(), name='collections'),
+    path('/users/', UserListView.as_view(), name='users'),
+    path('/news/', NewsListView.as_view(), name='news'),
+    path('/history/', HistoyUpdate.as_view(), name='history'),
 ]
 
 if settings.DEBUG:
