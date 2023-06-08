@@ -45,15 +45,23 @@ function Header() {
 			</nav>
 			{/* <span>Hello {name}</span> */}
 			{user ? (
-				<div className="header__main__user not">
-					<span
-						style={{
-							color: "#fff",
-						}}
-					>
-						Hello {user.username}
-					</span>
-					<span
+				<div
+					className="header__main__user not"
+					style={{
+						display: "flex",
+						alignItems: "center",
+					}}
+				>
+					<Link to="/user">
+						<img
+							src="./user.png"
+							alt=""
+							style={{
+								width: "22px",
+							}}
+						/>
+					</Link>
+					{/* <span
 						onClick={logoutUser}
 						style={{
 							color: "#fff",
@@ -61,7 +69,7 @@ function Header() {
 						}}
 					>
 						Log out
-					</span>
+					</span> */}
 				</div>
 			) : (
 				<div className="header__main__user not">

@@ -83,7 +83,13 @@ export function Search() {
 									color: "#fff",
 								}}
 							>
-								<div className="movie__container-item-wrapper">
+								<div
+									className="movie__container-item-wrapper"
+									style={{
+										display: "flex",
+										justifyContent: "center",
+									}}
+								>
 									<span className="movie__container_item-title">
 										{movie.title_rus}
 									</span>

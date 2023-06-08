@@ -1,12 +1,14 @@
 import "./categories.css";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
 
 export function Categories() {
 	const [categories, setCategories] = useState([]);
 	const [selectedCategory, setSelectedCategory] = useState("all");
 	const [data, setData] = useState([]);
 	const [allMovies, setAllMovies] = useState([]);
+	const { user } = useContext(AuthContext);
 
 	async function fetchCategories() {
 		let response = await fetch("http://127.0.0.1:8000/api/category/");
@@ -32,6 +34,21 @@ export function Categories() {
 			let data = await response.json();
 			setAllMovies(data);
 		}
+	}
+
+	async function updateMovie(movie) {
+		let response = await fetch("http://127.0.0.1:8000/api/history/", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				movie: movie,
+				username: user.username,
+			}),
+		});
+
+		console.log(await response.json());
 	}
 
 	const ChangeCategory = (category) => {
@@ -86,6 +103,9 @@ export function Categories() {
 					{allMovies.map((movie) => (
 						<Link to={`/${movie.title_original}/${movie.id}`} key={movie.id}>
 							<div
+								onClick={() => {
+									updateMovie(movie.id);
+								}}
 								className="movies__container-item"
 								style={{
 									backgroundImage: `url(http://127.0.0.1:8000${movie.picture})`,
@@ -101,8 +121,8 @@ export function Categories() {
 										justifyContent: "center",
 									}}
 								>
-								<span className="movie__container_item-title">
-										{movie.title_rus}
+									<span className="movie__container_item-title">
+										{movie.title_eng}
 									</span>
 								</div>
 							</div>

@@ -8,10 +8,28 @@ from django.db.models import Q
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated
-
 # Create your views here.
 
 
+
+class UserListView(generics.ListCreateAPIView): 
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+    def get(self, request):
+        queryset = User.objects.all()
+        username = request.GET.get('username', None)
+        
+        if username:
+            queryset = User.objects.filter(
+                Q(username__contains=username) | 
+                Q(username__contains=username.lower()) | 
+                Q(username__contains=username.upper()) | 
+                Q(username__contains=username.capitalize())
+            )
+
+        return Response(self.serializer_class(queryset, many=True).data)
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -49,6 +67,9 @@ class CategoryListView(generics.ListAPIView):
 class MoviesListView(generics.ListAPIView):
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
+
+    # def post(self, request): 
+    #     bot.send_message('New anime')
 
     def get(self, request, *args, **kwargs):
         category = request.GET.get('category', None)
@@ -89,3 +110,21 @@ class CollectionListView(generics.ListAPIView):
     queryset = Collections.objects.all()
     serializer_class = CollectionSerializer
 
+
+
+class NewsListView(generics.ListCreateAPIView):
+    queryset = News.objects.all()
+    serializer_class = NewsSerializer
+
+
+
+class HistoyUpdate(APIView):
+
+
+    def post(self, request):
+        movie = request.data['movie']
+        username = request.data['username']
+        user = User.objects.filter(username=username)[0]
+        user.history.add(movie)
+        user.save()
+        return Response({'message': 'success'})

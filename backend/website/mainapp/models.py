@@ -2,6 +2,7 @@ from django.db import models
 import random
 from django.core.validators import FileExtensionValidator
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Group, Permission
 
 
 class Permissions(models.Model):
@@ -27,13 +28,57 @@ class Role(models.Model):
         verbose_name_plural = 'Roles'
 
 
-class User(models.Model):
-    name = models.CharField(("name"), max_length=254)
+usernames = [
+    'Ichigo Kurosaki',
+    'Naruto Uzumaki',
+    'Lelouch Lamperouge',
+    'Goku Son',
+    'Light Yagami',
+    'Levi Ackerman',
+    'Edward Elric',
+    'Monkey D. Luffy', 
+    'Mikasa Ackerman',
+    'Sakura Haruno',
+    'Killua Zoldyck',
+    'Eren Yeager',
+    'Hinata Hyuga',
+    'Erza Scarlet',
+    'Saitama',
+    'Rukia Kuchiki',
+    'Natsu Dragneel',
+    'Rei Ayanami',
+    'Shoto Todoroki',
+    'Kaneki Ken',
+    'Gon Freecss',
+    'Asuna Yuuki',
+    'Yuno Gasai',
+    'Itachi Uchiha',
+    'Shinya Kogami',
+    'Kagome Higurashi',
+    'Vegeta',
+    'Mikasa Ackerman',
+    'Riza Hawkeye',
+    'Koro-sensei',
+    'Roronoa Zoro',
+    'Kanade Tachibana',
+    'Roy Mustang',
+    'Jotaro Kujo',
+    'Rias Gremory',
+    'Saber',
+    'Gray Fullbuster',
+    'Inuyasha',
+    'Maka Albarn',
+    'Holo',
+]
+
+
+class User(AbstractUser):
+    name = models.CharField(("name"), max_length=254, default=usernames[random.randint(1, 39)]) 
     username = models.CharField(("username"), max_length=255, unique=True)
     email = models.EmailField(("email"), max_length=254, unique=True)
-    picture = models.ImageField(("profile picture"), upload_to=f'user/{name}', height_field=None, width_field=None, max_length=None, default=f'../static/profile_pictures/{random.randint(1, 12)}.png')
-    phone_number = models.CharField(("phone"), max_length=15)
-    date_of_birth = models.DateField(("date of birth"), auto_now=False, auto_now_add=False)
+    picture = models.ImageField(("profile picture"), upload_to=f'user', height_field=None, width_field=None, max_length=None, default=f'profile_picture/{random.randint(1, 12)}.jpg')
+    phone_number = models.CharField(("phone"), max_length=15, null=True, blank=True, default='undefined')
+    date_of_birth = models.DateField(("date of birth"), auto_now=False, auto_now_add=True)
     balance = models.IntegerField(("balance"),blank=True, null=True)
     carma = models.IntegerField(("carma"),blank=True, null=True)
     about = models.TextField(("about"),blank=True, null=True)
@@ -43,7 +88,11 @@ class User(models.Model):
     logged = models.DateTimeField(("last seen"), auto_now=True, auto_now_add=False)
     created = models.DateTimeField(("created"), auto_now=False, auto_now_add=True)
     updated = models.DateTimeField(("updated"), auto_now=True, auto_now_add=False)
-    
+    groups = models.ManyToManyField(Group, verbose_name=("groups"), blank=True, related_name="User")
+    # Add related_name to user_permissions field
+    user_permissions = models.ManyToManyField(Permission, verbose_name=("user permissions"), blank=True, related_name="User")
+
+
     def __str__(self) -> str:
         return self.name
     
@@ -51,7 +100,7 @@ class User(models.Model):
         verbose_name = 'User'
         verbose_name_plural = 'Users'
 
-class Category(models.Model):
+class Category(models.Model): 
     name = models.CharField(("name"), max_length=100)
     picture = models.ImageField(("category picture"), upload_to='categories', height_field=None, width_field=None, max_length=None, null=True, blank=True)
     info = models.TextField(("category info"), blank=True, null=True)
@@ -138,6 +187,7 @@ class Movie(models.Model):
     age = models.IntegerField(("age"), default=16)
     description = models.TextField(("description"),blank=True, null=True)
     author = models.ForeignKey("mainapp.User", verbose_name=("author"), on_delete=models.CASCADE)
+
     quality = models.CharField(("quality"), max_length=50, choices=quality_choices, default='SD')
     budget = models.IntegerField(("budget"),blank=True, null=True)
     ratingIMDB = models.FloatField(("rating IMDB"),blank=True, null=True)
@@ -150,7 +200,7 @@ class Movie(models.Model):
     updated = models.DateField('updated', auto_now=True)
 
     def __str__(self) -> str:
-        return self.title_original
+        return self.title_eng
     
     class Meta:
             verbose_name = 'Movie'
@@ -162,11 +212,13 @@ class Collections(models.Model):
     name = models.CharField(("name"), max_length=255)
     movies = models.ManyToManyField("mainapp.Movie", verbose_name=("movies"),blank=True, null=True)
     info = models.TextField(("info"), blank=True, null=True)
+    position = models.IntegerField(("position"), default=10)
 
 
     class Meta:
         verbose_name = 'Collection'
         verbose_name_plural = 'Collections'
+        ordering = ['position']
 
 
     def __str__(self):
@@ -210,3 +262,71 @@ class Ticket(models.Model):
     user = models.ForeignKey("mainapp.User", verbose_name=("user"), on_delete=models.CASCADE)
     problem_type = models.CharField(("problem type"), max_length=200, choices=problem_choices)
     problem_text = models.TextField(("problem text"))
+
+
+
+class News(models.Model): 
+    intro = models.TextField(("title"), default='undefined')
+    title = models.TextField(("title"), default='undefined')
+    picture = models.CharField(("picture"), max_length=100)
+    time = models.CharField(("time"), max_length=100)
+
+
+    class Meta:
+        verbose_name = 'News'
+        verbose_name_plural = 'News'
+    
+    def __str__(self):
+        return self.intro
+    
+
+
+
+from django.contrib.auth.backends import BaseBackend
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+class CustomUserBackend(BaseBackend):
+    def authenticate(self, request, username=None, password=None, **kwargs):
+        try:
+            user = User.objects.get(username=username)
+            # print(user.password)
+        except User.DoesNotExist:
+            return None
+        if password == user.password:
+            return user
+        # if user.check_password(password):
+        #     return user
+        
+        return None
+
+    def get_user(self, user_id):
+        try:
+            return User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return None
+
+
+class Message(models.Model): 
+    user = models.ForeignKey("mainapp.User", verbose_name=("user"), on_delete=models.CASCADE)
+    text = models.TextField(("text"))
+
+
+class Forum(models.Model):
+    title = models.CharField(("title"), max_length=200)
+    picture = models.ImageField(("picture"), upload_to=None, height_field=None, width_field=None, max_length=None, null=True)
+    participants = models.ManyToManyField("mainapp.User", verbose_name=("participants"))
+    messages = models.ManyToManyField("mainapp.Message", verbose_name=("messages"))
+    created = models.DateTimeField(("created"), auto_now=False, auto_now_add=True)
+    last_message = models.DateTimeField(("last message"), auto_now=True, auto_now_add=False)
+
+
+    class Meta:
+        verbose_name = 'Forum'
+        verbose_name_plural = 'Forums'
+
+
+    def __str__(self):
+        return self.title
+

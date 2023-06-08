@@ -14,6 +14,9 @@ urlpatterns = [
     path('api/category/', CategoryListView.as_view(), name='category'),
     path('api/movies/', MoviesListView.as_view(), name='movies'),
     path('api/collections/', CollectionListView.as_view(), name='collections'),
+    path('api/users/', UserListView.as_view(), name='users'),
+    path('api/news/', NewsListView.as_view(), name='news'),
+    path('api/history/', HistoyUpdate.as_view(), name='history'),
 ]
 
 if settings.DEBUG:

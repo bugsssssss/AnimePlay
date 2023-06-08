@@ -3,6 +3,7 @@ import { CButton } from "@coreui/react";
 import { MovieContext, MovieProvider } from "../../context/movie";
 import { useContext, useState } from "react";
 import { Footer } from "../footer/footer";
+import { Link } from "react-router-dom";
 
 export function DetailComponent(movie) {
 	const { movieDetail } = useContext(MovieContext);
@@ -72,9 +73,14 @@ export function DetailComponent(movie) {
 						style={{
 							backgroundImage: `url(http://127.0.0.1:8000${movie.movie.picture})`,
 							marginBottom: "20px",
+							// "&:hover": {
+							// 	transform: "scale(0)",
+							// 	cursor: "pointer",
+							// },
 						}}
 					></div>
-					<h1>{movie.movie.title_rus}</h1>
+					<h1>{movie.movie.title_eng}</h1>
+					<h4>{movie.movie.title_rus}</h4>
 					<h4>{movie.movie.title_original}</h4>
 					<div className="additional_info">
 						<span>
@@ -83,14 +89,12 @@ export function DetailComponent(movie) {
 						<span>
 							Country: <b>{movie.movie.country}</b>
 						</span>
-						<span>
-							Genres: <b>{movie.movie.genres}</b>
-						</span>
-						{/* <span>Director(s): {movie.movie.directors}</span> */}
+
 						<span>
 							Age: <b>{movie.movie.age}+</b>
 						</span>
 					</div>
+
 					<div className="rating">
 						<span>
 							IMDB: <b>{movie.movie.ratingIMDB}</b>
@@ -99,19 +103,118 @@ export function DetailComponent(movie) {
 							KP: <b> {movie.movie.ratingKP}</b>
 						</span>
 					</div>
+					<span style={{}}>
+						Genres:
+						<br />
+						{movie.movie.genres.map((genre) => {
+							return <b key={genre}>{genre} </b>;
+						})}
+					</span>
 					<div className="description">
 						<span>Description: </span>
 						<p>
 							<b>{movie.movie.description}</b>
 						</p>
 					</div>
+
+					<span>Directors:</span>
+					<div
+						className="directors__list"
+						style={{
+							listStyle: "none",
+							display: "flex",
+							alignItems: "center",
+							gap: "20px",
+							margin: "15px 0",
+						}}
+					>
+						{movie.movie.directors.map((director) => {
+							return (
+								<Link
+									key={director.id}
+									style={{
+										textDecoration: "none",
+										color: "#fff",
+									}}
+								>
+									<div
+										style={{
+											display: "flex",
+											alignItems: "center",
+											flexDirection: "column",
+											gap: "10px",
+											fontSize: "14px",
+										}}
+									>
+										<div
+											style={{
+												backgroundImage: `url(${director.picture})`,
+												backgroundSize: "cover",
+												width: "75px",
+												height: "100px",
+												backgroundPosition: "center",
+											}}
+										></div>
+										{director.name}
+									</div>
+								</Link>
+							);
+						})}
+					</div>
+					<span>Actors:</span>
+					<div
+						className="directors__list"
+						style={{
+							listStyle: "none",
+							display: "flex",
+							alignItems: "center",
+							gap: "20px",
+							margin: "15px 0",
+						}}
+					>
+						{movie.movie.actors.map((actor) => {
+							return (
+								<Link
+									key={actor.id}
+									style={{
+										textDecoration: "none",
+										color: "#fff",
+									}}
+								>
+									<div
+										style={{
+											display: "flex",
+											alignItems: "center",
+											flexDirection: "column",
+											gap: "10px",
+											fontSize: "14px",
+										}}
+									>
+										<div
+											style={{
+												backgroundImage: `url(${actor.picture})`,
+												backgroundSize: "cover",
+												backgroundPosition: "center",
+												width: "75px",
+												height: "100px",
+											}}
+										></div>
+										{actor.name}
+									</div>
+								</Link>
+							);
+						})}
+					</div>
 					{movie.movie.file ? (
 						<button
 							id="btn"
+							className="watch"
 							onClick={movieOn}
 							style={{
 								width: "155px",
 								height: "auto",
+								background: "none",
+								border: "1px solid #fff",
 							}}
 							color="secondary"
 							shape="rounded-0"

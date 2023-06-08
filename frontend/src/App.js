@@ -18,6 +18,10 @@ import { MovieContext, MovieProvider } from "./context/movie";
 import { Search } from "./pages/search";
 import { Login } from "./components/login/login";
 import { Sign } from "./components/sign/sign";
+import { User } from "./pages/user";
+import { News } from "./pages/news";
+import { About } from "./pages/about";
+import { Forum } from "./pages/forum";
 
 const App = () => {
 	const { id } = useParams();
@@ -25,9 +29,16 @@ const App = () => {
 
 	return (
 		<MovieProvider>
-			<div className="App">
+			<div
+				className="App"
+				style={{
+					overflowX: "hidden",
+				}}
+			>
 				<Router>
 					<AuthProvider>
+						<Header />
+
 						<Routes>
 							<Route path="/" element={<Home />} />
 							<Route path="/" element={<PrivateRoute />}>
@@ -37,8 +48,11 @@ const App = () => {
 							<Route path="/search" element={<Search />} />
 							<Route path="/login" element={<Login />} />
 							<Route path="/sign-up" element={<Sign />} />
+							<Route path="/user" element={<User />} />
+							<Route path="/news" element={<News />} />
+							<Route path="/about" element={<About />} />
+							<Route path="/forum" element={<Forum />} />
 						</Routes>
-						<Header />
 					</AuthProvider>
 					{/* <Categories /> */}
 				</Router>

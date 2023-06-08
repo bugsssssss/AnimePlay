@@ -4,23 +4,21 @@ import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
 
 export function Sign() {
-	const { loginUser } = useContext(AuthContext);
+	const { loginUser, registerUser } = useContext(AuthContext);
 
 	return (
 		<>
 			<div className="login-box">
 				<h2>Sign Up</h2>
-				<form
-				// onSubmit={loginUser}
-				>
+				<form onSubmit={registerUser}>
 					<div className="user-box">
 						<input type="text" name="username" required="" />
 						<label htmlFor="username">Username</label>
 					</div>
-					{/* <div className="user-box">
-						<input type="email" name="" required="" />
+					<div className="user-box">
+						<input type="email" name="email" required="" />
 						<label>Email</label>
-					</div> */}
+					</div>
 					<div className="user-box">
 						<input type="password" name="password" required="" />
 						<label htmlFor="password">Password</label>
@@ -29,6 +27,7 @@ export function Sign() {
 						<input type="password" name="password1" required="" />
 						<label htmlFor="password1">Сonfirm Password</label>
 					</div>
+					<input type="checkbox" hidden name="is_active" value={true} />
 					<button
 						type="submit"
 						className="submit"

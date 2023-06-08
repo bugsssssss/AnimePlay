@@ -34,9 +34,7 @@ export function Carousel() {
 							alt={picture.id}
 						/>
 						<CCarouselCaption className="d-none d-md-block caption">
-							<a href={`${picture.movie.id}/${picture.movie.title_original}`}>
-								{picture.title}
-							</a>
+							<a href="">{picture.title}</a>
 							<p>{picture.description}</p>
 						</CCarouselCaption>
 					</CCarouselItem>

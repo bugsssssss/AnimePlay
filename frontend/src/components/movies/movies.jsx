@@ -18,7 +18,7 @@ export function Movies({ movies }) {
 						>
 							<div className="movie__container-item-wrapper">
 								{/* <span className="movie__container_item-title">
-									{movie.title_rus}
+									{movie.title_original}
 								</span> */}
 							</div>
 						</div>

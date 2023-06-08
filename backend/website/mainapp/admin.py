@@ -1,6 +1,21 @@
 from django.contrib import admin
 from .models import *
+from django.contrib.auth import get_user_model
+from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
 # Register your models here.
+
+
+
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
+    list_display = [
+        'username',
+        'phone_number',
+        'id',
+        'created'
+    ]
+
+
 @admin.register(Carousel)
 class CarouselAdmin(admin.ModelAdmin):
     list_display = (
@@ -20,17 +35,6 @@ class PermissionsAdmin(admin.ModelAdmin):
 @admin.register(Role)
 class RoleAdmin(admin.ModelAdmin):
     list_display = ['user_type']
-
-
-@admin.register(User)
-class UserAdmin(admin.ModelAdmin):
-    list_display = [
-        'name',
-        'username',
-        'phone_number',
-        'id',
-        'created'
-    ]
 
 
 
@@ -98,3 +102,8 @@ class CollectionsAdmin(admin.ModelAdmin):
     list_display = [
         'name',
     ]
+
+
+@admin.register(Forum)
+class ForumAdmin(admin.ModelAdmin):
+    list_display = ['title']

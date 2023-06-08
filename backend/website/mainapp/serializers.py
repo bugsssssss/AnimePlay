@@ -2,15 +2,20 @@ from rest_framework import serializers
 from .models import *
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = User
+        fields = '__all__'
+
 class CarouselSerializer(serializers.ModelSerializer):
 
-    movie = serializers.SerializerMethodField()
+    # movie = serializers.SerializerMethodField()
 
-    def get_movie(self, obj):
-        return {
-            'id': obj.movie.id,
-            'title_original': obj.movie.title_original,
-        }
+    # def get_movie(self, obj):
+    #     return {
+    #         'id': obj.movie.id,
+    #         'title_original': obj.movie.title_original,
+    #     }
 
     class Meta:
         model = Carousel
@@ -53,6 +58,7 @@ class MovieSerializer(serializers.ModelSerializer):
     created = serializers.DateTimeField(format="%Y")
     directors = serializers.SerializerMethodField()
     file = serializers.SerializerMethodField()
+    actors = serializers.SerializerMethodField()
 
 
     def get_category(self, obj):
@@ -62,10 +68,28 @@ class MovieSerializer(serializers.ModelSerializer):
             return None
 
     def get_genres(self, obj):
-        return obj.genres.all().values_list('name', flat=True)
+        arr = [f'{i.name}' for i in obj.genres.all()]
+        return arr
     
     def get_directors(self, obj):
-        return obj.directors.all().values_list('full_name', flat=True)
+        arr = [
+            {
+                'name': x.full_name,
+                'movies': [
+                    {   'id': i.id,
+                        'title_original': i.title_original,
+                        'title_rus': i.title_rus,
+                        'title_eng': i.title_eng,
+                        'picture': i.picture.url
+                    } for i in x.movies.all()
+                    ],
+                'picture': 'http://127.0.0.1:8000' + x.picture.url if x.picture else 'http://127.0.0.1:8000/media/images/not-found.webp',
+                'info': x.info
+             } for x in obj.directors.all()
+        ]   
+
+        return arr
+
     
 
     def get_file(self, obj): 
@@ -74,6 +98,22 @@ class MovieSerializer(serializers.ModelSerializer):
         else: 
             return ''
     
+    def get_actors(self, obj): 
+        arr = [{
+            'name':x.full_name,
+            'movies': [
+                    {   'id': i.id,
+                        'title_original': i.title_original,
+                        'title_rus': i.title_rus,
+                        'title_eng': i.title_eng,
+                        'picture': i.picture.url
+                    } for i in x.movies.all()
+                    ],
+            'picture': 'http://127.0.0.1:8000' + x.picture.url if x.picture else 'http://127.0.0.1:8000/media/images/not-found.webp',
+            'info': x.info
+                } for x in obj.actors.all()]
+        return arr
+
 
     class Meta:
         model = Movie
@@ -88,4 +128,11 @@ class CollectionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Collections
+        fields = '__all__'
+
+
+
+class NewsSerializer(serializers.ModelSerializer): 
+    class Meta:
+        model = News
         fields = '__all__'

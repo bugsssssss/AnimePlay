@@ -49,7 +49,9 @@ export function Collections() {
 				<div className="collections__content-item" key={collection.id}>
 					<span
 						style={{
-							marginLeft: "50px",
+							display: "block",
+							margin: "0 auto 30px auto",
+							textAlign: "center",
 						}}
 						className="content-item-heading"
 					>

@@ -44,6 +44,34 @@ export const AuthProvider = ({ children }) => {
 		}
 	};
 
+	let registerUser = async (e) => {
+		e.preventDefault();
+		if (e.target.password.value === e.target.password1.value) {
+			console.log("equal");
+		}
+		// console.log("Form submitted");
+		let response = await fetch("http://127.0.0.1:8000/api/users/", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				username: e.target.username.value,
+				email: e.target.email.value,
+				password: e.target.password.value,
+				is_active: e.target.is_active.value,
+			}),
+		});
+		console.log(response.status);
+		if (response.status === 201) {
+			alert("Success!");
+			history("/login");
+		} else if (response.status === 400) {
+			let error = await response.json();
+			alert(error);
+		}
+	};
+
 	let logoutUser = () => {
 		setAuthTokens(null);
 		setUser(null);
@@ -77,6 +105,7 @@ export const AuthProvider = ({ children }) => {
 		user: user,
 		loginUser: loginUser,
 		logoutUser: logoutUser,
+		registerUser: registerUser,
 	};
 
 	useEffect(() => {
