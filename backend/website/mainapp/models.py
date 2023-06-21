@@ -99,6 +99,7 @@ class User(AbstractUser):
     class Meta:
         verbose_name = 'User'
         verbose_name_plural = 'Users'
+        ordering = ['-created']
 
 class Category(models.Model): 
     name = models.CharField(("name"), max_length=100)
@@ -161,19 +162,64 @@ class Director(models.Model):
         verbose_name = 'Director'
         verbose_name_plural = 'Directors'
 
-class Movie(models.Model):
+class Replies(models.Model):
+    review = models.ForeignKey("mainapp.Review", verbose_name=("review"), on_delete=models.CASCADE)
+    author = models.ForeignKey("mainapp.User", verbose_name=("author"), on_delete=models.CASCADE)
+    text = models.TextField(("text"))
+    created = models.DateTimeField(("created"), auto_now=False, auto_now_add=True)
+    likes = models.IntegerField(("likes"), default=0)
+    dislikes = models.IntegerField(("dislikes"), default=0)
+    class Meta:
+        verbose_name = 'Reply'
+        verbose_name_plural = 'Replies'
 
+class Review(models.Model):
+    author = models.ForeignKey("mainapp.User", verbose_name=("author"), on_delete=models.CASCADE)
+    movie = models.ForeignKey("mainapp.Movie", verbose_name=("movie"), on_delete=models.CASCADE)
+    text = models.TextField(("text"))
+    likes = models.IntegerField(("likes"), default=0)
+    dislikes = models.IntegerField(("dislikes"), default=0)
+    created = models.DateTimeField(("created"), auto_now=False, auto_now_add=True)
+
+
+    class Meta:
+        verbose_name = ("Review")
+        verbose_name_plural = ("Reviews")
+        ordering = ['-created']
+
+    def __str__(self):
+        return self.text
+    
+
+
+class Rating(models.Model):
+    user = models.ForeignKey("mainapp.User", verbose_name=("user"), on_delete=models.CASCADE)
+    movie = models.ForeignKey("mainapp.Movie", verbose_name=("movie"), on_delete=models.CASCADE)
+    stars = models.IntegerField(("stars"))
+    created = models.DateTimeField(("created"), auto_now=False, auto_now_add=True)
+
+    class Meta:
+        verbose_name = ("Rating")
+        verbose_name_plural = ("Ratings")
+        ordering = ['-created']
+
+    def __str__(self):
+        return self.user.username
+
+
+class Movie(models.Model):
     status_choises = {
         ('Published', 'published'),
         ('Not released', 'not released'),
         ('Canceled', 'canceled')
     }
-
     quality_choices = {
+
         ('FullHD', 'fullhd'),
         ('HD', 'hd'),
         ('SD', 'sd')
     }
+
     title_original = models.CharField(("original title"), max_length=255)
     title_rus = models.CharField(("russian title"), max_length=255,blank=True, null=True)
     title_eng = models.CharField(("english title"), max_length=255, blank=True, null=True)
@@ -187,14 +233,16 @@ class Movie(models.Model):
     age = models.IntegerField(("age"), default=16)
     description = models.TextField(("description"),blank=True, null=True)
     author = models.ForeignKey("mainapp.User", verbose_name=("author"), on_delete=models.CASCADE)
-
     quality = models.CharField(("quality"), max_length=50, choices=quality_choices, default='SD')
     budget = models.IntegerField(("budget"),blank=True, null=True)
     ratingIMDB = models.FloatField(("rating IMDB"),blank=True, null=True)
     ratingKP = models.FloatField(("rating KP"),blank=True, null=True)
+    ratingAP = models.FloatField(("rating AnimePlay"), blank=True)
     status = models.CharField(("status"), max_length=50, choices=status_choises, default='Not released')
     manga = models.URLField(("manga url"), max_length=200, blank=True, null=True)
     file = models.FileField(("file"), upload_to=f'movies/videos', max_length=100,validators=[FileExtensionValidator(allowed_extensions=['MOV','avi','mp4','webm','mkv'])], blank=True, null=True)
+
+
 
     created = models.DateTimeField(("created"), auto_now=False, auto_now_add=True)
     updated = models.DateField('updated', auto_now=True)
@@ -210,9 +258,11 @@ class Movie(models.Model):
 
 class Collections(models.Model):
     name = models.CharField(("name"), max_length=255)
+    author = models.ForeignKey("mainapp.User", verbose_name=("author"), on_delete=models.CASCADE)
     movies = models.ManyToManyField("mainapp.Movie", verbose_name=("movies"),blank=True, null=True)
     info = models.TextField(("info"), blank=True, null=True)
     position = models.IntegerField(("position"), default=10)
+    created = models.DateTimeField(("created"), auto_now=False, auto_now_add=True)
 
 
     class Meta:
@@ -264,17 +314,35 @@ class Ticket(models.Model):
     problem_text = models.TextField(("problem text"))
 
 
+class Feedback(models.Model):
+    status_choices = {
+        ('opened', 'Opened'),
+        ('answered', 'Answered')
+    }
+    user = models.ForeignKey("mainapp.User", verbose_name=("user"), on_delete=models.CASCADE)
+    username = models.CharField(("username"), max_length=200)
+    subject = models.CharField(("subject"), max_length=200)
+    text = models.TextField(("text"))
+    response = models.TextField(("response"), default='')
+    status = models.CharField(("status"), max_length=200, choices=status_choices, default='opened')
+    created = models.DateTimeField(("created"), auto_now=False, auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created']
+
 
 class News(models.Model): 
     intro = models.TextField(("title"), default='undefined')
     title = models.TextField(("title"), default='undefined')
-    picture = models.CharField(("picture"), max_length=100)
+    picture = models.CharField(("picture"), max_length=100, blank=True)
+    author = models.ForeignKey("mainapp.User", verbose_name=("author"), on_delete=models.CASCADE)
     time = models.CharField(("time"), max_length=100)
 
 
     class Meta:
         verbose_name = 'News'
         verbose_name_plural = 'News'
+        ordering = ['-id']
     
     def __str__(self):
         return self.intro
@@ -309,7 +377,7 @@ class CustomUserBackend(BaseBackend):
 
 
 class Message(models.Model): 
-    forum = models.ForeignKey("mainapp.Forum", verbose_name=("forum"), on_delete=models.CASCADE)
+    # forum = models.ForeignKey("mainapp.Forum", verbose_name=("forum"), on_delete=models.CASCADE)
     user = models.ForeignKey("mainapp.User", verbose_name=("user"), on_delete=models.CASCADE)
     text = models.TextField(("text"))
 

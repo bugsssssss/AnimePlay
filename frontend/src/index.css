@@ -27,9 +27,12 @@ html {
 	margin: 0;
 }
 
+.review_reply.active {
+	display: unset !important;
+}
+
 @media screen and (max-width: 900px) {
 	.movies__container {
 		justify-content: center;
 	}
 }
-

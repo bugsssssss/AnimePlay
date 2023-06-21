@@ -8,8 +8,19 @@ export { Header };
 function Header() {
 	const { logoutUser, user } = useContext(AuthContext);
 
+	window.addEventListener("scroll", function () {
+		var header = document.getElementById("header");
+		var scrollPosition = window.scrollY || document.documentElement.scrollTop;
+
+		if (scrollPosition > 0) {
+			header.classList.add("scrolled");
+		} else {
+			header.classList.remove("scrolled");
+		}
+	});
+
 	return (
-		<header className="header__main">
+		<header className="header__main" id="header">
 			<div className="header__main__logo">
 				<Link to="/">AnimePlay</Link>
 			</div>
@@ -30,6 +41,14 @@ function Header() {
 					<li className="header__main__nav__list__item">
 						<Link to="/about">About us</Link>
 					</li>
+					<li className="header__main__nav__list__item">
+						<Link to="/contact">Contact us</Link>
+					</li>
+					{/* {user.is_admin == true ? (
+						<Link to="/about">Admin panel</Link>
+					) : (
+						<span></span>
+					)} */}
 					<li className="header__main__nav__list__item">
 						<Link to="/search">
 							<img
@@ -52,24 +71,68 @@ function Header() {
 						alignItems: "center",
 					}}
 				>
-					<Link to="/user">
-						<img
-							src="./user.png"
-							alt=""
-							style={{
-								width: "22px",
-							}}
-						/>
-					</Link>
-					{/* <span
-						onClick={logoutUser}
-						style={{
-							color: "#fff",
-							cursor: "pointer",
-						}}
-					>
-						Log out
-					</span> */}
+					{user.is_admin == true ? (
+						<>
+							<Link to="/admin-panel">Dashboard</Link>
+							<Link
+								to="/user"
+								// style={{
+								// 	display: "flex",
+								// 	alignItems: "center",
+								// 	gap: "10px",
+								// }}
+							>
+								{/* <img
+									src="./medal.png"
+									alt=""
+									style={{
+										width: "32px",
+									}}
+								/> */}
+
+								<div
+									style={{
+										backgroundImage: `url(${user.picture})`,
+										backgroundPosition: "center",
+										backgroundSize: "cover",
+										backgroundRepeat: "no-repeat",
+										width: "50px",
+										height: "50px",
+										borderRadius: "50%",
+										border: "3px solid gold",
+									}}
+								></div>
+							</Link>
+						</>
+					) : (
+						<Link
+							to="/user"
+							// style={{
+							// 	display: "flex",
+							// 	alignItems: "center",
+							// 	gap: "10px",
+							// }}
+						>
+							{/* <img
+								src="./user.png"
+								alt=""
+								style={{
+									width: "22px",
+								}}
+							/> */}
+							<div
+								style={{
+									backgroundImage: `url(${user.picture})`,
+									backgroundPosition: "center",
+									backgroundSize: "cover",
+									backgroundRepeat: "no-repeat",
+									width: "50px",
+									height: "50px",
+									borderRadius: "50%",
+								}}
+							></div>
+						</Link>
+					)}
 				</div>
 			) : (
 				<div className="header__main__user not">

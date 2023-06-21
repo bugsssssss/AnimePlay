@@ -4,7 +4,6 @@
 	margin: 100px auto 0 auto;
 	padding: 30px 60px;
 	color: #fff;
-	height: 100vh;
 }
 
 .search {
@@ -16,4 +15,42 @@ input.search__item {
 	padding: 8px 12px;
 	outline: none;
 	margin-bottom: 10px;
+}
+
+.alertBox.active {
+	visibility: visible !important;
+}
+
+input.collection_name {
+	display: none;
+}
+input.collection_name.active {
+	display: unset;
+}
+
+.collection_old.active {
+	display: unset;
+}
+
+.collection_old {
+	display: none;
+}
+
+.collection_editing {
+	display: none;
+}
+
+.collection_editing.active {
+	display: unset;
+}
+
+td,
+th {
+	border: 1px solid #fff;
+	padding: 8px;
+	text-align: left;
+}
+
+input {
+	outline: none;
 }

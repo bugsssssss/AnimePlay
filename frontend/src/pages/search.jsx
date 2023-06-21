@@ -3,6 +3,7 @@ import "./pages.css";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { Movies } from "../components/movies/movies";
+import background from "../components/video/background6.mp4";
 
 export function Search() {
 	const [movies, setMovies] = useState([]);
@@ -59,48 +60,50 @@ export function Search() {
 	};
 
 	return (
-		<div className="search__content">
-			<section className="search">
-				<h1>Search...</h1>
-				<input type="text" onChange={handleChange} className="search__item" />
-			</section>
-			<span>Results: {movies.length}</span>
-			<div
-				className="movies__container"
-				style={{
-					marginTop: "30px",
-				}}
-			>
-				{movies ? (
-					movies.map((movie) => (
-						<Link to={`/${movie.title_original}/${movie.id}`} key={movie.id}>
-							<div
-								className="movies__container-item"
-								style={{
-									backgroundImage: `url(http://127.0.0.1:8000${movie.picture})`,
-									position: "relative",
-									transition: "0.5s",
-									color: "#fff",
-								}}
-							>
+		<>
+			<div className="search__content">
+				<section className="search">
+					<h1>Search...</h1>
+					<input type="text" onChange={handleChange} className="search__item" />
+				</section>
+				<span>Results: {movies.length}</span>
+				<div
+					className="movies__container"
+					style={{
+						marginTop: "30px",
+					}}
+				>
+					{movies ? (
+						movies.map((movie) => (
+							<Link to={`/${movie.title_original}/${movie.id}`} key={movie.id}>
 								<div
-									className="movie__container-item-wrapper"
+									className="movies__container-item"
 									style={{
-										display: "flex",
-										justifyContent: "center",
+										backgroundImage: `url(http://127.0.0.1:8000${movie.picture})`,
+										position: "relative",
+										transition: "0.5s",
+										color: "#fff",
 									}}
 								>
-									<span className="movie__container_item-title">
-										{movie.title_rus}
-									</span>
+									<div
+										className="movie__container-item-wrapper"
+										style={{
+											display: "flex",
+											justifyContent: "center",
+										}}
+									>
+										<span className="movie__container_item-title">
+											{movie.title_rus}
+										</span>
+									</div>
 								</div>
-							</div>
-						</Link>
-					))
-				) : (
-					<h2>Nothing here...</h2>
-				)}
+							</Link>
+						))
+					) : (
+						<h2>Nothing here...</h2>
+					)}
+				</div>
 			</div>
-		</div>
+		</>
 	);
 }

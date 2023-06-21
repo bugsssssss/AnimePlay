@@ -22,6 +22,8 @@ import { User } from "./pages/user";
 import { News } from "./pages/news";
 import { About } from "./pages/about";
 import { Forum } from "./pages/forum";
+import { Admin } from "./pages/admin";
+import { Contact } from "./pages/contact";
 
 const App = () => {
 	const { id } = useParams();
@@ -41,8 +43,9 @@ const App = () => {
 
 						<Routes>
 							<Route path="/" element={<Home />} />
+							<Route path="/:name/:id" element={<DetailPage />} />
 							<Route path="/" element={<PrivateRoute />}>
-								<Route path="/:name/:id" element={<DetailPage />} />
+								<Route path="/admin-panel" element={<Admin />} />
 							</Route>
 							<Route path="/categories" element={<Categories />} />
 							<Route path="/search" element={<Search />} />
@@ -52,6 +55,7 @@ const App = () => {
 							<Route path="/news" element={<News />} />
 							<Route path="/about" element={<About />} />
 							<Route path="/forum" element={<Forum />} />
+							<Route path="/contact" element={<Contact />} />
 						</Routes>
 					</AuthProvider>
 					{/* <Categories /> */}

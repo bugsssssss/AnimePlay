@@ -11,6 +11,15 @@
 	border-radius: 10px;
 }
 
+.backgroundVideo {
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	top: 0;
+	bottom: 0;
+	object-fit: cover;
+}
+
 .login-box h2 {
 	margin: 0 0 30px;
 	padding: 0;

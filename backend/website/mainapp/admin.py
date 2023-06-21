@@ -107,3 +107,29 @@ class CollectionsAdmin(admin.ModelAdmin):
 @admin.register(Forum)
 class ForumAdmin(admin.ModelAdmin):
     list_display = ['title']
+
+
+@admin.register(Feedback)
+class FeedbackAdmin(admin.ModelAdmin):
+    list_display = ['username', 'user', 'subject', 'status','created']
+
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ['author', 'movie','likes', 'dislikes' ,'created']
+
+
+@admin.register(Replies)
+class RepliesAdmin(admin.ModelAdmin):
+    list_display = ['text', 'review', 'created']
+
+
+@admin.register(Rating)
+class RatingAdmin(admin.ModelAdmin):
+    list_display = ['user', 'movie', 'created']
+
+
+
+@admin.register(News)
+class NewsAdmin(admin.ModelAdmin):
+    list_display = ['id','intro','time' ]

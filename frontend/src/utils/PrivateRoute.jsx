@@ -24,5 +24,22 @@ export const PrivateRoute = () => {
 	const auth = false; // determine if authorized, from context or however you're doing it
 	// If authorized, return an outlet that will render child elements
 	// If not, return element that will navigate to login page
-	return user ? <Outlet /> : <Navigate to="/login" />;
+
+	if (user.is_admin) {
+		return user ? <Outlet /> : <Navigate to="/login" />;
+	} else {
+		return (
+			<h2
+				style={{
+					position: "absolute",
+					top: "50%",
+					left: "50%",
+					transform: "translate(-50%, -50%)",
+					color: "red",
+				}}
+			>
+				You don't have an access to reach this page
+			</h2>
+		);
+	}
 };

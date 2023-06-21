@@ -41,6 +41,11 @@
 	background: #fff;
 }
 
+.categories__list-item.active a {
+	color: #000;
+	background: #fff;
+}
+
 .movies {
 	margin: 50px auto 0 auto;
 	transition: 0.5s;

@@ -102,7 +102,7 @@ const useStyles = makeStyles({
 const ExampleCard = (movie) => {
 	const classes = useStyles();
 	return (
-		<Link to={`/${movie.movie.title_original}/${movie.movie.id}`}>
+		<Link to={`/${movie.movie.title_eng}/${movie.movie.id}`}>
 			<div className="collections__movies-item">
 				<div className="collections__movies-item-wrapper">
 					<Card

@@ -1,4 +1,5 @@
 import { React, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 export const News = () => {
 	const [news, setNews] = useState([]);
@@ -20,7 +21,7 @@ export const News = () => {
 		<section
 			className="news__container"
 			style={{
-				maxWidth: "800px",
+				maxWidth: "1140px",
 				margin: "100px auto 0 auto",
 				color: "#fff",
 				padding: "15px 20px",
@@ -32,14 +33,14 @@ export const News = () => {
 			{news.map((i) => {
 				return (
 					<div
-						style={
-							{
-								// width: "340px",
-								// display: "flex",
-								// flexDirection: "column",
-								// gap: "10px",
-							}
-						}
+						style={{
+							// width: "340px",
+							// display: "flex",
+							// flexDirection: "column",
+							// gap: "10px",
+							// border: "1px solid #fff",
+							padding: "8px 12px",
+						}}
 						key={i.id}
 					>
 						<div
@@ -59,22 +60,25 @@ export const News = () => {
 							style={{
 								display: "flex",
 								flexDirection: "column",
+								alignItems: "center",
 								gap: "10px",
+								marginTop: "10px",
 							}}
 						>
-							<span
+							<Link
 								style={{
 									fontSize: "18px",
+									color: "#fff",
 								}}
 							>
 								{i.intro}
-							</span>
+							</Link>
 							<span
 								style={{
 									fontSize: "14px",
 								}}
 							>
-								{i.title}
+								{i.title.slice(1, 90)}...
 							</span>
 							<span
 								style={{

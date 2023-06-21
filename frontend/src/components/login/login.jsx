@@ -1,14 +1,65 @@
 import "./login.css";
 import { Link } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
+import background from "../video/background.mp4";
 
 export function Login() {
 	const { loginUser } = useContext(AuthContext);
 	const { user } = useContext(AuthContext);
 
+	const [muted, setMuted] = useState(true);
+
+	const handleMuted = (isMuted) => {
+		setMuted(isMuted);
+	};
+
 	return (
 		<>
+			<img
+				src={muted ? "../mute.png" : "../unmute.png"}
+				alt=""
+				style={{
+					transform: "translate(-50%, -50%)",
+					background: "transparent",
+					boxSizing: "border-box",
+					bordeRadius: "10px",
+					width: "30px",
+					position: "absolute",
+					top: "100px",
+					right: "30px",
+					cursor: "pointer",
+					zIndex: "500",
+				}}
+				onClick={() => {
+					handleMuted(!muted);
+				}}
+			/>
+			{muted ? (
+				<video
+					className="backgroundVideo"
+					src={background}
+					muted
+					autoPlay
+					loop
+					type="video/mp4"
+					style={{
+						opacity: "0.9",
+					}}
+				></video>
+			) : (
+				<video
+					className="backgroundVideo"
+					src={background}
+					autoPlay
+					loop
+					type="video/mp4"
+					style={{
+						opacity: "0.9",
+					}}
+				></video>
+			)}
+
 			<div className="login-box">
 				<h2>Login</h2>
 				<form onSubmit={loginUser}>

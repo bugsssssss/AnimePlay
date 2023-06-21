@@ -3,6 +3,27 @@ from .models import *
 
 
 class UserSerializer(serializers.ModelSerializer):
+
+    created = serializers.SerializerMethodField()
+    logged = serializers.SerializerMethodField()
+    updated = serializers.SerializerMethodField()
+    date_joined = serializers.SerializerMethodField()
+
+    def get_created(self, obj):
+        return f' {str(obj.created)[:10]}'
+    
+    def get_logged(self, obj): 
+        return f'{str(obj.logged)[:10]}'
+    
+    def get_updated(self, obj): 
+        return f'{str(obj.updated)[:10]}'
+    
+    def get_date_joined(self, obj): 
+        return f'{str(obj.date_joined)[:10]}'
+    
+    
+
+
     class Meta: 
         model = User
         fields = '__all__'
@@ -133,6 +154,65 @@ class CollectionSerializer(serializers.ModelSerializer):
 
 
 class NewsSerializer(serializers.ModelSerializer): 
+
+    author = serializers.SerializerMethodField()
+
+    def get_author(self, obj):
+        return {'id': obj.author.id, 'username': obj.author.username}
+
     class Meta:
         model = News
+        fields = '__all__'
+
+
+
+class FeedbackSerializer(serializers.ModelSerializer):
+
+    created = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
+
+    def get_created(self, obj):
+        date = str(obj.created)[:10]
+        time = str(obj.created)[11:19]
+        newtime = int(time[:2])
+        time = f'{newtime + 5}{time[2:9]}'
+        return {
+            'date': date,
+            'time': time
+        }
+    
+    
+    def get_status(self, obj):
+        instance = Feedback.objects.get(id=obj.id)
+        if obj.response:
+            instance.status = 'answered'
+            instance.save()
+            return obj.status
+        
+        else: 
+            return obj.status
+
+    class Meta:
+        model = Feedback
+        fields = '__all__'
+
+    
+
+class ReviewSerializer(serializers.ModelSerializer):
+
+    created = serializers.SerializerMethodField()
+
+    def get_created(self, obj):
+        date = str(obj.created)[:10]
+        time = str(obj.created)[11:19]
+        newtime = int(time[:2])
+        time = f'{newtime + 5}{time[2:9]}'
+        print(time)
+        return {
+            'date': date,
+            'time': time
+        }
+
+    class Meta: 
+        model = Review
         fields = '__all__'

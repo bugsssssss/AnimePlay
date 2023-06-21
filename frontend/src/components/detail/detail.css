@@ -19,6 +19,12 @@
 	margin-bottom: 10px;
 }
 
+.transparent {
+	background: #000;
+	color: #fff;
+	border: 1px solid #fff;
+}
+
 .video__container {
 	display: none;
 	overflow: hidden;
@@ -64,4 +70,8 @@
 	/* color: #000; */
 	border-radius: 5px;
 	box-shadow: 0 0 5px #fff, 0 0 25px #fff, 0 0 50px #fff, 0 0 100px #fff;
+}
+
+.reply__block.active {
+	display: flex !important;
 }

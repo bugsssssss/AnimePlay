@@ -9,6 +9,7 @@ import { BrowserRouter } from "react-router-dom";
 import { Routes, Route, Link } from "react-router-dom";
 import { CardSlider } from "../components/slider/slider";
 import { Footer } from "../components/footer/footer";
+import { Header } from "../components/header/header";
 
 export function Home() {
 	return (

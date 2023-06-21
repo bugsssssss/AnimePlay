@@ -21,7 +21,7 @@ export function Carousel() {
 	console.log(pictures);
 
 	return (
-		<section className="Carousel" style={{ paddingTop: "70px" }}>
+		<section className="Carousel" style={{ paddingTop: "77px" }}>
 			<CCarousel controls indicators dark>
 				{pictures.map((picture) => (
 					<CCarouselItem key={picture.id}>
