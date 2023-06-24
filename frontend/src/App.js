@@ -24,10 +24,14 @@ import { About } from "./pages/about";
 import { Forum } from "./pages/forum";
 import { Admin } from "./pages/admin";
 import { Contact } from "./pages/contact";
+import { NewsDetail } from "./pages/newsDetail";
+import { UserDetail } from "./pages/userDetail";
+import { Chat } from "./pages/chat";
 
 const App = () => {
 	const { id } = useParams();
 	const { name } = useParams();
+	const { newsId } = useParams();
 
 	return (
 		<MovieProvider>
@@ -52,10 +56,13 @@ const App = () => {
 							<Route path="/login" element={<Login />} />
 							<Route path="/sign-up" element={<Sign />} />
 							<Route path="/user" element={<User />} />
+							<Route path="/user/:username/:id" element={<UserDetail />} />
 							<Route path="/news" element={<News />} />
+							<Route path="/:id" element={<NewsDetail />} />
 							<Route path="/about" element={<About />} />
 							<Route path="/forum" element={<Forum />} />
 							<Route path="/contact" element={<Contact />} />
+							{/* <Route path="/chat" element={<Chat />} /> */}
 						</Routes>
 					</AuthProvider>
 					{/* <Categories /> */}

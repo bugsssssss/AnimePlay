@@ -8,6 +8,9 @@ class UserSerializer(serializers.ModelSerializer):
     logged = serializers.SerializerMethodField()
     updated = serializers.SerializerMethodField()
     date_joined = serializers.SerializerMethodField()
+    followers = serializers.SerializerMethodField()
+    following = serializers.SerializerMethodField()
+
 
     def get_created(self, obj):
         return f' {str(obj.created)[:10]}'
@@ -21,12 +24,31 @@ class UserSerializer(serializers.ModelSerializer):
     def get_date_joined(self, obj): 
         return f'{str(obj.date_joined)[:10]}'
     
+    def get_followers(self, obj):
+        return {'count': obj.followers.count(), 'data': [j.id for j in obj.followers.all()]}
     
 
-
+    def get_following(self, obj):
+        return {'count': obj.following.count(), 'data': [j.id for j in obj.following.all()]}
+    
     class Meta: 
         model = User
         fields = '__all__'
+
+class UserUpdate(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'name', 'picture', 'about', 'phone_number', 'email']
+        extra_kwargs = {'picture': {'required': False},'username': {'required': False}, 'name': {'required': False}, 'about': {'required': False},'phone_number': {'required': False}, 'email': {'required': False},}
+
+
+
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
+        fields = ['from_who', 'to_whom', 'has_seen','text']
+        
+
 
 class CarouselSerializer(serializers.ModelSerializer):
 

@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
 import styles from "./header.css";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { AuthContext } from "../../context/AuthContext";
+import { UserDetail } from "../../pages/userDetail";
 
 export { Header };
 
 function Header() {
-	const { logoutUser, user } = useContext(AuthContext);
+	const { logoutUser, user, userData } = useContext(AuthContext);
 
 	window.addEventListener("scroll", function () {
 		var header = document.getElementById("header");
@@ -92,14 +93,14 @@ function Header() {
 
 								<div
 									style={{
-										backgroundImage: `url(${user.picture})`,
+										backgroundImage: `url(http://127.0.0.1:8000${userData?.picture})`,
 										backgroundPosition: "center",
 										backgroundSize: "cover",
 										backgroundRepeat: "no-repeat",
 										width: "50px",
 										height: "50px",
 										borderRadius: "50%",
-										border: "3px solid gold",
+										// border: "3px solid gold",
 									}}
 								></div>
 							</Link>
@@ -122,7 +123,7 @@ function Header() {
 							/> */}
 							<div
 								style={{
-									backgroundImage: `url(${user.picture})`,
+									backgroundImage: `url(http://127.0.0.1:8000${userData?.picture})`,
 									backgroundPosition: "center",
 									backgroundSize: "cover",
 									backgroundRepeat: "no-repeat",

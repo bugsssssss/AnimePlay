@@ -63,7 +63,13 @@ export function Search() {
 		<>
 			<div className="search__content">
 				<section className="search">
-					<h1>Search...</h1>
+					<h1
+						style={{
+							margin: "10px 0",
+						}}
+					>
+						Search...
+					</h1>
 					<input type="text" onChange={handleChange} className="search__item" />
 				</section>
 				<span>Results: {movies.length}</span>

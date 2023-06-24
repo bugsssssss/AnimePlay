@@ -19,6 +19,7 @@ class UserListView(generics.ListCreateAPIView):
         queryset = User.objects.all()
         username = request.GET.get('username', None)
 
+
         if username:
             queryset = User.objects.filter(
                 Q(username__contains=username) |
@@ -28,6 +29,85 @@ class UserListView(generics.ListCreateAPIView):
             )
 
         return Response(self.serializer_class(queryset, many=True).data)
+
+
+class UserDetailApiView(APIView):
+
+    def get(self, request):
+        username = request.GET.get('username', None)
+        name = request.GET.get('name', None)
+        email = request.GET.get('email', None)
+        admin = request.GET.get('admin', None)
+        queryset = User.objects.all()
+        user_id = request.GET.get('id', None)
+        follow = request.GET.get('follow', None)
+        unfollow = request.GET.get('unfollow', None)
+
+        if follow and user_id: 
+            try:
+                instance = User.objects.get(id=user_id)
+                instance.followers.add(follow)
+                instance.save()
+                return Response('Follower added successfully!')
+            except:
+                return Response(False)
+        elif unfollow and user_id: 
+            try:
+                instance = User.objects.get(id=user_id)
+                instance.followers.remove(unfollow)
+                instance.save()
+                return Response('Follower removed successfully!')
+            except:
+                return Response(False)
+        
+        if user_id:
+            try:
+                instance = User.objects.get(id=user_id)
+                return Response(UserSerializer(instance).data)
+            except: 
+                return Response(False)
+
+
+        if username:
+            queryset = queryset.filter(Q(username__contains=username))
+
+        if name:
+            queryset = queryset.filter(Q(name__contains=name))
+        if email:
+            queryset = queryset.filter(Q(email__contains=email))
+        if admin:
+            queryset = queryset.filter(is_superuser=admin)
+
+        return Response(UserSerializer(queryset, many=True).data)
+    
+
+    def update(self, request, format=None):
+        print(request.FILES)
+        picture = request.FILES['picture']
+        username = request.data['username']
+        name = request.data['name']
+        email = request.data['email']
+        about = request.data['about']
+        user_id = request.data['id']
+
+        print(picture, username, name, email, about)
+
+        try:
+            instance = User.objects.get(id=user_id)
+            instance.username = username
+            instance.name = name
+            instance.picture = picture
+            instance.email = username
+            instance.about = username
+            instance.save()
+        except:
+            return Response(False)
+
+
+
+class UserUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserUpdate
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -45,6 +125,9 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         # ...
 
         return token
+
+
+
 
 
 class MyTokenObtainPairVew(TokenObtainPairView):
@@ -176,13 +259,23 @@ class NewsApiView(APIView):
         intro = request.GET.get('intro', None)
         title = request.GET.get('title', None)
         picture = request.GET.get('picture', None)
+        news_id = request.GET.get('id', None)
 
-        if edit and intro and title and picture:
+        if news_id:
+            # try:
+                instance = News.objects.get(id=news_id)
+                return Response({'id': instance.id,'intro': instance.intro, 'title': instance.title,'picture': instance.picture, 'author': {'id': instance.author.id,'username': instance.author.username} })
+            # except:
+            #     return Response(False)
+
+
+        
+
+        if edit and intro and title:
             try:
                 instance = News.objects.get(id=edit)
                 instance.intro = intro
                 instance.title = title
-                instance.picture = picture
                 instance.save()
                 return Response(True)
             except:
@@ -446,3 +539,88 @@ class RatingApiView(APIView):
                     'stars': x.stars,
                     'created': f'{str(x.created)[11:19]} {str(x.created)[:10]}'}
                 for x in queryset])
+
+
+
+
+class NewsCommentApiView(APIView): 
+
+    def get(self, request):
+        news_id = request.GET.get('id', None)
+        comment = request.GET.get('comment', None)
+        author = request.GET.get('user', None)
+        text = request.GET.get('text', None)
+        delete = request.GET.get('delete', None)
+        like = request.GET.get('like', None)
+        dislike = request.GET.get('dislike', None)
+
+        if comment and like:
+            instance = NewsComment.objects.get(id=comment)
+            instance.likes += 1
+            instance.save()
+            return Response('success')
+        elif comment and dislike:
+            instance = NewsComment.objects.get(id=comment)
+            instance.dislikes += 1
+            instance.save()
+            return Response('success')
+
+
+        if delete:
+            instance = NewsComment.objects.get(id=delete)
+            
+            if instance:
+                instance.delete()
+                return Response('Deleted successfully!')
+            else:
+                return Response(False)
+
+        if news_id and author and text:
+            try:
+                instance = NewsComment(news=News.objects.get(id=news_id),author=User.objects.get(id=author), text=text)
+                instance.save()
+                return Response('Saved')
+
+            except:
+                return Response(False)
+
+
+        if news_id:
+            queryset = NewsComment.objects.filter(news__id=news_id)
+            print(queryset)
+
+            return Response([
+                {
+                    'id':x.id,      
+                    'author': {
+                        'id': x.author.id,
+                        'username': x.author.username,
+                        'picture': x.author.picture.url,
+                        'is_admin': x.author.is_superuser
+                    },
+                    'text': x.text,
+                    'likes': x.likes,
+                    'dislikes': x.dislikes,
+                    'created': f'{str(x.created)[11:19]} {str(x.created)[:10]}'
+                    } for x in queryset])
+        
+
+
+
+class MessageCreateApiView(generics.ListCreateAPIView):
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+
+
+    def get(self, request):
+        sender = request.GET.get('sender')
+        to = request.GET.get('to')
+        text = request.GET.get('text')
+
+        if sender and to:
+            self.queryset = Message.objects.filter(Q(from_who__id=sender) & Q(to_whom__id=to))
+            print(self.queryset)
+    
+    
+    
+        return Response(MessageSerializer(self.queryset.all(), many=True).data)

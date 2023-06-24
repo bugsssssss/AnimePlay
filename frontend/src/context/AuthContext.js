@@ -14,6 +14,17 @@ export const AuthProvider = ({ children }) => {
 			? jwt_decode(localStorage.getItem("authTokens"))
 			: null
 	);
+	let [userData, setUserData] = useState();
+
+	const getUser = async () => {
+		let response = await fetch(
+			`http://127.0.0.1:8000/api/users-detail/?id=${user.user_id}`
+		);
+		if (response.status === 200) {
+			const data = await response.json();
+			setUserData(data);
+		}
+	};
 
 	let [loading, setLoading] = useState(true);
 
@@ -43,6 +54,10 @@ export const AuthProvider = ({ children }) => {
 			alert("Username or password is incorrect!");
 		}
 	};
+
+	useEffect(() => {
+		getUser();
+	}, [user]);
 
 	let registerUser = async (e) => {
 		e.preventDefault();
@@ -105,6 +120,7 @@ export const AuthProvider = ({ children }) => {
 		loginUser: loginUser,
 		logoutUser: logoutUser,
 		registerUser: registerUser,
+		userData: userData,
 	};
 
 	useEffect(() => {

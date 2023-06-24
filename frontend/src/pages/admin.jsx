@@ -22,6 +22,13 @@ export const Admin = () => {
 	const [newsAuthor, setNewsAuthor] = useState("all");
 	const [isNewsEditing, setIsNewsEditing] = useState(false);
 	const [editingNewsObject, setEditingNewsObject] = useState({});
+	const [query, setQuery] = useState({
+		username: "",
+		name: "",
+		email: "",
+		admin: "",
+	});
+	const [isAdmin, setIsAdmin] = useState("");
 
 	localStorage.setItem("chosenMovies", chosenMovies);
 
@@ -321,14 +328,50 @@ export const Admin = () => {
 		editingNewsObject.title = e.target.value;
 	};
 
-	const sendChanges = async (id, intro, title, picture) => {
+	const sendChanges = async (id, intro, title) => {
 		let response = await fetch(
-			`http://127.0.0.1:8000/api/news-detail/?edit=${id}&intro=${intro}&title=${title}&picture=${picture}`
+			`http://127.0.0.1:8000/api/news-detail/?edit=${id}&intro=${intro}&title=${title}`
 		);
 
 		if (response.status === 200) {
 			setIsNewsEditing(false);
 			getNews("all");
+		}
+	};
+
+	const handleUsername = (e) => {
+		query.username = e.target.value;
+		console.log(query);
+	};
+	const handleName = (e) => {
+		query.name = e.target.value;
+		console.log(query);
+	};
+	const handleEmail = (e) => {
+		query.email = e.target.value;
+		console.log(query);
+	};
+	const handleIsAdmin = (e) => {
+		let is_admin = e.target.value;
+
+		if (is_admin == "yes") {
+			setIsAdmin("True");
+		} else if (is_admin == "no") {
+			setIsAdmin("False");
+		} else {
+			setIsAdmin("");
+		}
+		query.admin = console.log(query);
+	};
+
+	const searchUsers = async (username, name, is_admin, email) => {
+		let response = await fetch(
+			`http://127.0.0.1:8000/api/users-detail/?username=${username}&name=${name}&admin=${is_admin}&email=${email}`
+		);
+
+		if (response.ok) {
+			let data = await response.json();
+			setUsers(data);
 		}
 	};
 
@@ -552,159 +595,169 @@ export const Admin = () => {
 			)}
 			{category == "reviews" ? (
 				<>
-					<div
-						style={{
-							display: "flex",
-							flexDirection: "column",
-							gap: "30px",
-						}}
-					>
-						{reviews.map((review) => {
-							return (
-								<div
-									key={review.id}
-									style={{
-										display: "flex",
-										flexDirection: "column",
-										gap: "5px",
-										border: "1px solid #fff",
-										padding: "12px 16px",
-									}}
-								>
-									<Link to={`/${review.movie.title}/${review.movie.id}`}>
-										<div
-											style={{
-												backgroundImage: `url(http://127.0.0.1:8000${review.movie.picture})`,
-												position: "relative",
-												backgroundSize: "cover",
-												backgroundPosition: "center",
-												backgroundRepeat: "no-repeat",
-												transition: "0.5s",
-												color: "#fff",
-												width: "75px",
-												height: "100px",
-											}}
-										></div>
-									</Link>
+					{reviews.length != 0 ? (
+						<div
+							style={{
+								display: "flex",
+								flexDirection: "column",
+								gap: "30px",
+							}}
+						>
+							{reviews.map((review) => {
+								return (
 									<div
+										key={review.id}
 										style={{
 											display: "flex",
 											flexDirection: "column",
 											gap: "5px",
+											border: "1px solid #fff",
+											padding: "12px 16px",
 										}}
 									>
-										<span>Username: {review.author.username}</span>
-										<span>Text: {review.text}</span>
-										<span>Created: {review.created}</span>
-									</div>
+										<Link to={`/${review.movie.title}/${review.movie.id}`}>
+											<div
+												style={{
+													backgroundImage: `url(http://127.0.0.1:8000${review.movie.picture})`,
+													position: "relative",
+													backgroundSize: "cover",
+													backgroundPosition: "center",
+													backgroundRepeat: "no-repeat",
+													transition: "0.5s",
+													color: "#fff",
+													width: "75px",
+													height: "100px",
+												}}
+											></div>
+										</Link>
+										<div
+											style={{
+												display: "flex",
+												flexDirection: "column",
+												gap: "5px",
+											}}
+										>
+											<span>Username: {review.author.username}</span>
+											<span>Text: {review.text}</span>
+											<span>Created: {review.created}</span>
+										</div>
 
-									<div
-										style={{
-											display: "flex",
-											alignItems: "center",
-											gap: "10px",
-										}}
-									>
-										<div
-											style={{
-												display: "flex",
-												alignItems: "center",
-												gap: "5px",
-											}}
-										>
-											{review.likes}
-											<img
-												style={{
-													width: "20px",
-												}}
-												src="../like.png"
-												alt=""
-											/>
-										</div>
-										<div
-											style={{
-												display: "flex",
-												gap: "5px",
-											}}
-										>
-											{review.dislikes}
-											<img
-												style={{
-													width: "20px",
-												}}
-												src="../dislike.png"
-												alt=""
-											/>
-										</div>
-										<span
-											style={{
-												padding: "8px 12px",
-												cursor: "pointer",
-											}}
-											onClick={() => {
-												toggleInput(review.id);
-											}}
-										>
-											REPLY
-										</span>
-										<span
-											style={{
-												padding: "8px 12px",
-												cursor: "pointer",
-											}}
-											onClick={() => {
-												deleteReview(review.id);
-											}}
-										>
-											DELETE
-										</span>
-									</div>
-									<div
-										style={{
-											display: "none",
-										}}
-										className="review_reply"
-										id={`review_reply${review.id}`}
-									>
-										<label htmlFor="review_answer">Reply: </label>
 										<div
 											style={{
 												display: "flex",
 												alignItems: "center",
 												gap: "10px",
-												marginTop: "5px",
 											}}
 										>
-											<input
-												type="text"
-												name="review_answer"
+											<div
 												style={{
-													outline: "none",
-													padding: "2px 8px",
-
-													width: "100%",
+													display: "flex",
+													alignItems: "center",
+													gap: "5px",
 												}}
-												// className="transparent"
-												onChange={handleReviewReply}
-											/>
-											<img
-												src="./paper-plane.png"
-												alt=""
+											>
+												{review.likes}
+												<img
+													style={{
+														width: "20px",
+													}}
+													src="../like.png"
+													alt=""
+												/>
+											</div>
+											<div
 												style={{
-													width: "30px",
-													height: "25px",
+													display: "flex",
+													gap: "5px",
+												}}
+											>
+												{review.dislikes}
+												<img
+													style={{
+														width: "20px",
+													}}
+													src="../dislike.png"
+													alt=""
+												/>
+											</div>
+											<span
+												style={{
+													padding: "8px 12px",
 													cursor: "pointer",
 												}}
 												onClick={() => {
-													sendReply(review.id, user.id, reviewReplyText);
+													toggleInput(review.id);
 												}}
-											/>
+											>
+												REPLY
+											</span>
+											<span
+												style={{
+													padding: "8px 12px",
+													cursor: "pointer",
+												}}
+												onClick={() => {
+													deleteReview(review.id);
+												}}
+											>
+												DELETE
+											</span>
+										</div>
+										<div
+											style={{
+												display: "none",
+											}}
+											className="review_reply"
+											id={`review_reply${review.id}`}
+										>
+											<label htmlFor="review_answer">Reply: </label>
+											<div
+												style={{
+													display: "flex",
+													alignItems: "center",
+													gap: "10px",
+													marginTop: "5px",
+												}}
+											>
+												<input
+													type="text"
+													name="review_answer"
+													style={{
+														outline: "none",
+														padding: "2px 8px",
+
+														width: "100%",
+													}}
+													// className="transparent"
+													onChange={handleReviewReply}
+												/>
+												<img
+													src="./paper-plane.png"
+													alt=""
+													style={{
+														width: "30px",
+														height: "25px",
+														cursor: "pointer",
+													}}
+													onClick={() => {
+														sendReply(review.id, user.id, reviewReplyText);
+													}}
+												/>
+											</div>
 										</div>
 									</div>
-								</div>
-							);
-						})}
-					</div>
+								);
+							})}
+						</div>
+					) : (
+						<h2
+							style={{
+								textAlign: "center",
+							}}
+						>
+							No reviews yet
+						</h2>
+					)}
 				</>
 			) : (
 				<span></span>
@@ -1121,8 +1174,7 @@ export const Admin = () => {
 										sendChanges(
 											editingNewsObject.id,
 											editingNewsObject.intro,
-											editingNewsObject.title,
-											editingNewsObject.picture
+											editingNewsObject.title
 										);
 									}}
 								>
@@ -1301,6 +1353,7 @@ export const Admin = () => {
 								type="text"
 								name="username"
 								id="username"
+								onChange={handleUsername}
 							/>
 						</div>
 						<div
@@ -1321,6 +1374,7 @@ export const Admin = () => {
 								type="text"
 								name="name"
 								id="name"
+								onChange={handleName}
 							/>
 						</div>
 						<div
@@ -1341,6 +1395,7 @@ export const Admin = () => {
 								type="text"
 								name="email"
 								id="email"
+								onChange={handleEmail}
 							/>
 						</div>
 						<div
@@ -1362,6 +1417,7 @@ export const Admin = () => {
 									color: "#fff",
 									padding: "0 8px",
 								}}
+								onChange={handleIsAdmin}
 							>
 								<option value=""></option>
 								<option value="yes">yes</option>
@@ -1377,12 +1433,7 @@ export const Admin = () => {
 								alignSelf: "end",
 							}}
 							onClick={() => {
-								sendChanges(
-									editingNewsObject.id,
-									editingNewsObject.intro,
-									editingNewsObject.title,
-									editingNewsObject.picture
-								);
+								searchUsers(query?.username, query?.name, isAdmin, query.email);
 							}}
 						>
 							SEARCH
@@ -1416,158 +1467,35 @@ export const Admin = () => {
 							</tr>
 						</thead>
 						<tbody>
-							{users.map((user) => (
-								<tr key={user.id}>
-									<td>{user.id}</td>
-									<td>{user.username}</td>
-									<td>{user.name}</td>
-									<td>{user.email}</td>
-									<td>{user.phone ? user.phone : "no"}</td>
-									<td>{user.is_superuser ? "yes" : "no"}</td>
-									<td>{user.balance ? user.balance : "0"}</td>
-									<td>{user.carma ? user.carma : "0"}</td>
-									<td>{user.logged}</td>
-									<td>{user.created}</td>
+							{users ? (
+								<>
+									{" "}
+									{users.map((user) => (
+										<tr key={user.id}>
+											<td>{user.id}</td>
+											<td>{user.username}</td>
+											<td>{user.name}</td>
+											<td>{user.email}</td>
+											<td>{user.phone ? user.phone : "no"}</td>
+											<td>{user.is_superuser ? "yes" : "no"}</td>
+											<td>{user.balance ? user.balance : "0"}</td>
+											<td>{user.carma ? user.carma : "0"}</td>
+											<td>{user.logged}</td>
+											<td>{user.created}</td>
+										</tr>
+									))}
+								</>
+							) : (
+								<tr>
+									<td>No results</td>
 								</tr>
-							))}
+							)}
 						</tbody>
 					</table>
 				</>
 			) : (
 				<></>
 			)}
-			{/* 
-			{category == "users" ? (
-				<div
-					style={{
-						display: "flex",
-						flexDirection: "column",
-						gap: "20px",
-						alignItems: "center",
-					}}
-				>
-					{users.map((user) => {
-						return (
-							<table
-								style={{
-									borderCollapse: "collapse",
-									width: "100%",
-									// display: "flex",
-								}}
-							>
-								<thead
-									style={{
-										textTransform: "uppercase",
-										// display: "flex",
-										// flexDirection: "column",
-									}}
-								>
-									<th>ID</th>
-									<th>Username</th>
-									<th>Name</th>
-									<th>Email</th>
-									<th>Phone</th>
-									<th>Admin</th>
-									<th>Balance</th>
-									<th>Carma</th>
-									<th>Last login</th>
-									<th>Created</th>
-								</thead>
-								<tr
-									style={
-										{
-											// display: "flex",
-											// flexDirection: "column",
-										}
-									}
-								>
-									<td>{user.id}</td>
-									<td>{user.username}</td>
-									<td>{user.name}</td>
-									<td>{user.email}</td>
-									<td>{user.phone ? user.phone : "no"}</td>
-									<td>{user.is_superuser ? "yes" : "no"}</td>
-									<td>{user.balance ? user.balance : "0"}</td>
-									<td>{user.carma ? user.carma : "0"}</td>
-									<td>{user.logged}</td>
-									<td>{user.created}</td>
-								</tr>
-							</table>
-							// <div
-							// 	style={{
-							// 		display: "flex",
-							// 		flexDirection: "column",
-							// 		gap: "2px",
-							// 		width: "50%",
-							// 		padding: "8px 12px",
-							// 		border: "1px solid #fff",
-							// 	}}
-							// >
-							// 	<div
-							// 		style={{
-							// 			width: "60px",
-							// 			height: "60px",
-							// 			backgroundImage: `url(${user.picture})`,
-							// 			backgroundPosition: "center",
-							// 			backgroundSize: "cover",
-							// 			borderRadius: "50%",
-							// 		}}
-							// 	></div>
-							// 	<div
-							// 		style={{
-							// 			// border: "1px solid #fff",
-							// 			padding: "4px 8px",
-							// 		}}
-							// 	>
-							// 		ID: {user.id}
-							// 	</div>
-							// 	<div
-							// 		style={{
-							// 			// border: "1px solid #fff",
-							// 			padding: "4px 8px",
-							// 		}}
-							// 	>
-							// 		Username: {user.username}
-							// 	</div>
-							// 	<div
-							// 		style={{
-							// 			// border: "1px solid #fff",
-							// 			padding: "4px 8px",
-							// 		}}
-							// 	>
-							// 		Name: {user.name}
-							// 	</div>
-							// 	<div
-							// 		style={{
-							// 			// border: "1px solid #fff",
-							// 			padding: "4px 8px",
-							// 		}}
-							// 	>
-							// 		Email: {user.email ? user.email : "No email"}
-							// 	</div>
-							// 	<div
-							// 		style={{
-							// 			// border: "1px solid #fff",
-							// 			padding: "4px 8px",
-							// 		}}
-							// 	>
-							// 		Phone: {user.phone ? user.phone : "No phone"}
-							// 	</div>
-							// 	<div
-							// 		style={{
-							// 			// border: "1px solid #fff",
-							// 			padding: "4px 8px",
-							// 		}}
-							// 	>
-							// 		Admin: {user.is_superuser ? "yes" : "no"}
-							// 	</div>
-							// </div>
-						);
-					})}
-				</div>
-			) : (
-				<></>
-			)} */}
 		</section>
 	);
 };

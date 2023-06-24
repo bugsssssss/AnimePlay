@@ -83,12 +83,14 @@ class User(AbstractUser):
     carma = models.IntegerField(("carma"),blank=True, null=True)
     about = models.TextField(("about"),blank=True, null=True)
     history = models.ManyToManyField("mainapp.Movie", verbose_name=("history"),blank=True, null=True)
-    # following = models.ManyToManyField("mainapp.User", verbose_name=("following"),blank=True, null=True)
-    # followers = models.ManyToManyField("mainapp.User", verbose_name=("followers"),blank=True, null=True)
+    following = models.ManyToManyField("self", verbose_name=("following"), blank=True, null=True, related_name="following")
+    followers = models.ManyToManyField("self", verbose_name=("followers"), blank=True, null=True, related_name="followers")
     logged = models.DateTimeField(("last seen"), auto_now=True, auto_now_add=False)
+    favourites = models.ManyToManyField("self", verbose_name=("favourites"), blank=True, null=True, related_name="favourites")
     created = models.DateTimeField(("created"), auto_now=False, auto_now_add=True)
     updated = models.DateTimeField(("updated"), auto_now=True, auto_now_add=False)
     groups = models.ManyToManyField(Group, verbose_name=("groups"), blank=True, related_name="User")
+
     # Add related_name to user_permissions field
     user_permissions = models.ManyToManyField(Permission, verbose_name=("user permissions"), blank=True, related_name="User")
 
@@ -205,7 +207,7 @@ class Rating(models.Model):
 
     def __str__(self):
         return self.user.username
-
+    
 
 class Movie(models.Model):
     status_choises = {
@@ -376,10 +378,36 @@ class CustomUserBackend(BaseBackend):
             return None
 
 
-class Message(models.Model): 
-    # forum = models.ForeignKey("mainapp.Forum", verbose_name=("forum"), on_delete=models.CASCADE)
-    user = models.ForeignKey("mainapp.User", verbose_name=("user"), on_delete=models.CASCADE)
+class NewsComment(models.Model):
+
+    news = models.ForeignKey("mainapp.News", verbose_name=("news"), on_delete=models.CASCADE)
+    author = models.ForeignKey("mainapp.User", verbose_name=("author"), on_delete=models.CASCADE)
     text = models.TextField(("text"))
+    likes = models.IntegerField(("likes"), default=0)
+    dislikes = models.IntegerField(("dislikes"), default=0)
+    created = models.DateTimeField(("created"), auto_now=False, auto_now_add=True)
+    
+
+    class Meta:
+        verbose_name = ("NewsComment")
+        verbose_name_plural = ("NewsComments")
+
+    def __str__(self):
+        return self.text
+
+
+
+class Message(models.Model): 
+    from_who = models.ManyToManyField("mainapp.User", verbose_name=("from_who"), blank=True, null=True, related_name="from_who")
+    to_whom = models.ManyToManyField("mainapp.User", verbose_name=("to_whom"), blank=True, null=True, related_name="to_whom")
+    text = models.TextField(("text"))
+    has_seen = models.BooleanField(("has seen"), default=False)
+    created = models.DateTimeField(("created"), auto_now=False, auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Message'
+        verbose_name_plural = 'Messages'
+        ordering = ['-created']
 
 
 class Forum(models.Model):

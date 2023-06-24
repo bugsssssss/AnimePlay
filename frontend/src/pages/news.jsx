@@ -70,6 +70,7 @@ export const News = () => {
 									fontSize: "18px",
 									color: "#fff",
 								}}
+								to={`/${i.id}`}
 							>
 								{i.intro}
 							</Link>

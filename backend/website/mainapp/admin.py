@@ -133,3 +133,8 @@ class RatingAdmin(admin.ModelAdmin):
 @admin.register(News)
 class NewsAdmin(admin.ModelAdmin):
     list_display = ['id','intro','time' ]
+
+
+@admin.register(NewsComment)
+class NewsCommentAdmin(admin.ModelAdmin):
+    list_display = ['news', 'author', 'created']
