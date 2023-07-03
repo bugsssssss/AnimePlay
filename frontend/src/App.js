@@ -26,7 +26,6 @@ import { Admin } from "./pages/admin";
 import { Contact } from "./pages/contact";
 import { NewsDetail } from "./pages/newsDetail";
 import { UserDetail } from "./pages/userDetail";
-import { Chat } from "./pages/chat";
 
 const App = () => {
 	const { id } = useParams();

@@ -45,9 +45,14 @@ class UserDetailApiView(APIView):
 
         if follow and user_id: 
             try:
+
                 instance = User.objects.get(id=user_id)
-                instance.followers.add(follow)
+                instance.add_follower(User.objects.get(id=follow))
                 instance.save()
+
+                instance2 = User.objects.get(id=follow)
+                instance2.following.add(user_id)
+                instance2.save()
                 return Response('Follower added successfully!')
             except:
                 return Response(False)
@@ -56,6 +61,10 @@ class UserDetailApiView(APIView):
                 instance = User.objects.get(id=user_id)
                 instance.followers.remove(unfollow)
                 instance.save()
+
+                instance2 = User.objects.get(id=unfollow)
+                instance2.following.remove(user_id)
+                instance2.save()
                 return Response('Follower removed successfully!')
             except:
                 return Response(False)
@@ -81,27 +90,8 @@ class UserDetailApiView(APIView):
         return Response(UserSerializer(queryset, many=True).data)
     
 
-    def update(self, request, format=None):
-        print(request.FILES)
-        picture = request.FILES['picture']
-        username = request.data['username']
-        name = request.data['name']
-        email = request.data['email']
-        about = request.data['about']
-        user_id = request.data['id']
 
-        print(picture, username, name, email, about)
 
-        try:
-            instance = User.objects.get(id=user_id)
-            instance.username = username
-            instance.name = name
-            instance.picture = picture
-            instance.email = username
-            instance.about = username
-            instance.save()
-        except:
-            return Response(False)
 
 
 
@@ -125,6 +115,8 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         # ...
 
         return token
+
+
 
 
 
@@ -193,6 +185,26 @@ class CollectionListView(generics.ListAPIView):
     queryset = Collections.objects.all()
     serializer_class = CollectionSerializer
 
+
+
+class MovieCreateView(generics.ListCreateAPIView):
+    queryset = Movie.objects.all()
+    serializer_class = MovieCreateSerializer
+
+
+    def get(self, request):
+        delete = request.GET.get('delete')
+
+        if delete:
+            try:
+
+                instance = Movie.objects.get(id=delete)
+                instance.delete()
+                return Response(True)
+            except: 
+                return Response(False)
+                
+        
 
 
 class CollectionApiView(APIView):
@@ -392,14 +404,14 @@ class ReviewApiView(APIView):
             else:
                 return Response(False)
 
-        if review and like:
+        if review and like and author:
             instance = Review.objects.get(id=review)
-            instance.likes += 1
+            instance.liked.add(User.objects.get(id=author))
             instance.save()
             return Response('success')
-        elif review and dislike:
+        elif review and dislike and author:
             instance = Review.objects.get(id=review)
-            instance.dislikes += 1
+            instance.disliked.add(User.objects.get(id=author))
             instance.save()
             return Response('success')
 
@@ -407,7 +419,6 @@ class ReviewApiView(APIView):
             instance = Review(author=User.objects.get(
                 id=author), movie=Movie.objects.get(id=movie), text=text)
             instance.save()
-            print(instance)
             return Response('succesfully created')
 
         if movie:
@@ -448,10 +459,12 @@ class ReviewApiView(APIView):
                         'is_admin': x.author.is_superuser},
                     'movie': x.movie.id,
                     'text': x.text,
-                    'likes': x.likes,
-                    'dislikes': x.dislikes,
+                    'likes': len(x.liked.all()),
+                    'dislikes': len(x.disliked.all()),
+                    'liked': [z.id for z in x.liked.all()],
+                    'disliked': [z.id for z in x.disliked.all()],
                     'created': f'{str(x.created)[11:19]} {str(x.created)[:10]}'}
-                for x in queryset])
+            for x in queryset])
 
 
 class RepliesApiView(APIView):
@@ -530,6 +543,11 @@ class RatingApiView(APIView):
                     })
             else:
                 return Response({'rating': 0})
+        
+        if user and movie: 
+            instance = Rating.objects.get(Q(movie__id=movie) & Q(user__id=user))
+            
+            return Response({'id':instance.id})
 
         return Response(
             [
@@ -613,14 +631,72 @@ class MessageCreateApiView(generics.ListCreateAPIView):
 
 
     def get(self, request):
+        chat_id = request.GET.get('id')
         sender = request.GET.get('sender')
-        to = request.GET.get('to')
+
+        return Response(MessageSerializer(self.queryset.all(), many=True).data)
+
+
+class ChatApiView(APIView):
+
+    def get(self, request):
+        chat_id = request.GET.get('id')
+        user1 = request.GET.get('user1')
+        user2 = request.GET.get('user2')
+        sender = request.GET.get('sender')
         text = request.GET.get('text')
 
-        if sender and to:
-            self.queryset = Message.objects.filter(Q(from_who__id=sender) & Q(to_whom__id=to))
-            print(self.queryset)
-    
-    
-    
-        return Response(MessageSerializer(self.queryset.all(), many=True).data)
+                
+        if chat_id and sender and text:
+            try:
+                instance = Chat.objects.get(id=chat_id)
+                new_message = Message(sender=User.objects.get(id=sender), text=text)
+                new_message.save()
+                instance.messages.add(new_message)
+                instance.save()
+                return Response('Message has been added!')
+            except:
+                return Response(False)
+
+        
+        if user1 and user2:
+            try:
+                instance = Chat.objects.get((Q(name__contains=user1) & Q(name__contains=user2)) | (Q(name__contains=user2) & Q(name__contains=user1)))
+                return Response({'id': instance.id, 'messages': MessageSerializer(instance.messages, many=True).data})
+            except:
+                instance = Chat(name=str(user1+user2))
+                instance.save()
+                return Response({'id': instance.id, 'messages': instance.messages.all()})
+
+
+
+# class CreateChat(APIView):
+
+#     def get(self, request):
+#         new = request.GET.get('new')
+
+#         if new:
+#             instance = 
+
+
+class Favourite(APIView):
+
+    def get(self, request):
+        movie_id = request.GET.get('id')
+        user_id = request.GET.get('user')
+
+        if movie_id and user_id:
+            try:
+                user_instance = User.objects.get(id=user_id)
+                movie_instance = Movie.objects.get(id=movie_id)
+                user_instance.favourites.add(movie_instance)
+                user_instance.save()
+                return Response(True)
+            except:
+                return Response(False)
+            
+
+
+class FavouriteCreateApi(generics.ListCreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = FavouriteSerializer

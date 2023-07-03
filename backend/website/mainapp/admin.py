@@ -79,6 +79,7 @@ class DirectorAdmin(admin.ModelAdmin):
 class MovieAdmin(admin.ModelAdmin):
     list_display = [
         'title_rus',
+        'id',
         'age',
         'author',
         'age',
@@ -116,7 +117,7 @@ class FeedbackAdmin(admin.ModelAdmin):
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ['author', 'movie','likes', 'dislikes' ,'created']
+    list_display = ['author', 'movie','created']
 
 
 @admin.register(Replies)
@@ -138,3 +139,13 @@ class NewsAdmin(admin.ModelAdmin):
 @admin.register(NewsComment)
 class NewsCommentAdmin(admin.ModelAdmin):
     list_display = ['news', 'author', 'created']
+
+
+@admin.register(Chat)
+class ChatAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name']
+
+
+@admin.register(Message)
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ['id', 'sender','text']

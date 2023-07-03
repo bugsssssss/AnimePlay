@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import background from "../video/background.mp4";
+import background2 from "../video/background8.mp4";
 
 export function Login() {
 	const { loginUser } = useContext(AuthContext);
@@ -38,7 +39,7 @@ export function Login() {
 			{muted ? (
 				<video
 					className="backgroundVideo"
-					src={background}
+					src={background2}
 					muted
 					autoPlay
 					loop
@@ -50,7 +51,7 @@ export function Login() {
 			) : (
 				<video
 					className="backgroundVideo"
-					src={background}
+					src={background2}
 					autoPlay
 					loop
 					type="video/mp4"

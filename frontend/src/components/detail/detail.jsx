@@ -16,12 +16,10 @@ export function DetailComponent(movie) {
 	const [isFullScreen, setIsFullScreeen] = useState(false);
 	const [replies, setReplies] = useState([]);
 	const [replyText, setReplyText] = useState("");
-	const [liked, setLiked] = useState(false);
+	// const [liked, setLiked] = useState(false);
 	const [disliked, setDisliked] = useState(false);
 	const [rating, setRating] = useState(0);
-	const [selectedStars, setSelectedStars] = useState(
-		localStorage.getItem(`${movie.movie.id}`) | 0
-	);
+	const [selectedStars, setSelectedStars] = useState(0);
 	const [isRated, setIsRated] = useState(false);
 	const [ratingNumber, setRatingNumber] = useState(0);
 
@@ -101,6 +99,7 @@ export function DetailComponent(movie) {
 		if (response.status == 200) {
 			const data = await response.json();
 			setComments(data);
+			console.log(comments);
 		}
 	};
 
@@ -168,27 +167,26 @@ export function DetailComponent(movie) {
 		}
 	});
 
-	const sendLike = async (id) => {
+	const sendLike = async (id, author) => {
 		let response = await fetch(
-			`http://127.0.0.1:8000/api/reviews/?review=${id}&like=test`
+			`http://127.0.0.1:8000/api/reviews/?review=${id}&like=test&author=${author}`
 		);
 
 		if (response.ok) {
-			setLiked(true);
+			// setLiked(true);
 			getComments();
 			getReplies();
 			console.log("like");
 		}
 	};
 
-	const sendDislike = async (id) => {
+	const sendDislike = async (id, author) => {
 		let response = await fetch(
-			`http://127.0.0.1:8000/api/reviews/?review=${id}&dislike=test`
+			`http://127.0.0.1:8000/api/reviews/?review=${id}&dislike=test&author=${author}`
 		);
 
 		if (response.ok) {
-			setDisliked(true);
-			localStorage.setItem("liked", true);
+			// setDisliked(true);
 			getComments();
 			getReplies();
 		}
@@ -225,8 +223,15 @@ export function DetailComponent(movie) {
 
 		if (response.ok) {
 			let data = await response.json();
+			console.log(data);
 			if (user) {
 				setIsRated(data.users.includes(user.id));
+				for (let i = 0; i < data.data.length; i++) {
+					const element = data.data[i];
+					if (element.user == user.id) {
+						setSelectedStars(element.rating);
+					}
+				}
 			}
 
 			if (data.data) {
@@ -243,7 +248,15 @@ export function DetailComponent(movie) {
 
 		if (response.ok) {
 			getRating();
-			localStorage.setItem(`${movie.movie.id}`, selectedStars);
+		}
+	};
+
+	const addFavourite = async (movie_id, user_id) => {
+		let response = await fetch(
+			`http://127.0.0.1:8000/api/favourites-add/?id=${movie_id}&user=${user_id}`
+		);
+
+		if (response.ok) {
 		}
 	};
 
@@ -401,24 +414,210 @@ export function DetailComponent(movie) {
 
 	return (
 		<>
+			{/* <div
+				style={{
+					width: "100vw",
+					height: "150vh",
+					position: "absolute",
+					backgroundImage: `url(http://127.0.0.1:8000${movie.movie.picture})`,
+					backgroundPosition: "center",
+					backgroundSize: "cover",
+					backgroundRepeat: "no-repeat",
+					opacity: "20%",
+				}}
+			></div> */}
 			<section
 				className="detail-page"
 				style={{
-					zIndex: "100",
+					// zIndex: "100",
+					position: "relative",
 				}}
 			>
 				<div className="detail-page__content">
 					<div
-						className="collections__movies-item"
 						style={{
-							backgroundImage: `url(http://127.0.0.1:8000${movie.movie.picture})`,
-							marginBottom: "20px",
-							// "&:hover": {
-							// 	transform: "scale(0)",
-							// 	cursor: "pointer",
-							// },
+							display: "flex",
+							justifyContent: "space-between",
+							flexWrap: "wrap",
 						}}
-					></div>
+					>
+						<div
+							className="collections__movies-item"
+							style={{
+								backgroundImage: `url(http://127.0.0.1:8000${movie.movie.picture})`,
+								marginBottom: "20px",
+								"&:hover": {
+									transform: "none",
+									opacity: "unset",
+									cursor: "none",
+								},
+								// "&:hover": {
+								// 	transform: "scale(0)",
+								// 	cursor: "pointer",
+								// },
+							}}
+						></div>
+						{user ? (
+							<div
+								style={{
+									// position: "absolute",
+									// right: "40px",
+									// top: "20px",
+									display: "flex",
+									flexDirection: "column",
+									gap: "20px",
+									alignSelf: "flex-end",
+								}}
+							>
+								<div
+									className="favourites"
+									style={{
+										display: "flex",
+										gap: "5px",
+										alignItems: "center",
+										justifyContent: "center",
+										cursor: "pointer",
+										padding: "8px 10px",
+										border: "1px solid #fff",
+									}}
+								>
+									<img
+										src="../star.png"
+										style={{
+											width: "22px",
+											height: "22px",
+										}}
+										alt=""
+									/>
+									<span>Add to favourites</span>
+								</div>
+								<div
+									style={{
+										display: "flex",
+										gap: "5px",
+										alignItems: "center",
+										justifyContent: "center",
+										cursor: "pointer",
+										padding: "8px 10px",
+										border: "1px solid #fff",
+									}}
+								>
+									Watch later
+								</div>
+								<div
+									className="rating"
+									style={{
+										margin: "0",
+									}}
+								>
+									<span>
+										IMDB: <b>{movie.movie.ratingIMDB}</b>
+									</span>
+									<span>
+										KP: <b> {movie.movie.ratingKP}</b>
+									</span>
+									<span>
+										AP: <b>{rating}</b> ({ratingNumber})
+									</span>
+								</div>
+								<div
+									style={{
+										margin: "10px 0",
+									}}
+								>
+									<h4
+										style={{
+											marginBottom: "10px",
+										}}
+									>
+										Star Rating: {selectedStars} stars
+									</h4>
+									<div
+										style={{
+											display: "flex",
+											alignItems: "center",
+											gap: "10px",
+										}}
+									>
+										{isRated ? (
+											<div
+												style={{
+													fontSize: "20px",
+												}}
+												title="You have already rated"
+											>
+												{[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((starCount) => (
+													<span
+														key={starCount}
+														style={{
+															cursor: "not-allowed",
+															color:
+																starCount <= selectedStars ? "gold" : "gray",
+														}}
+														// onClick={() => handleStarClick(starCount)}
+													>
+														&#9733;
+													</span>
+												))}
+											</div>
+										) : (
+											<div
+												style={{
+													fontSize: "20px",
+												}}
+											>
+												{[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((starCount) => (
+													<span
+														key={starCount}
+														style={{
+															cursor: "pointer",
+															color:
+																starCount <= selectedStars ? "gold" : "gray",
+														}}
+														onClick={() => handleStarClick(starCount)}
+													>
+														&#9733;
+													</span>
+												))}
+											</div>
+										)}
+										{isRated ? (
+											<span
+												title="You have already rated"
+												style={{
+													fontSize: "18px",
+													padding: "0 12px",
+													border: "1px solid #fff",
+													cursor: "not-allowed",
+												}}
+												// onClick={() => {
+												// 	sendRating();
+												// }}
+											>
+												Rate
+											</span>
+										) : (
+											<span
+												style={{
+													fontSize: "18px",
+													padding: "0 12px",
+													border: "1px solid #fff",
+													cursor: "pointer",
+												}}
+												onClick={() => {
+													sendRating();
+												}}
+											>
+												Rate
+											</span>
+										)}
+									</div>
+								</div>
+							</div>
+						) : (
+							<></>
+						)}
+					</div>
 					<h1
 						style={{
 							margin: "10px 0",
@@ -426,8 +625,8 @@ export function DetailComponent(movie) {
 					>
 						{movie.movie.title_eng}
 					</h1>
-					<h4>{movie.movie.title_rus}</h4>
-					<h4>{movie.movie.title_original}</h4>
+					{/* <h4>{movie.movie.title_rus}</h4>
+					<h4>{movie.movie.title_original}</h4> */}
 					<div className="additional_info">
 						<span>
 							Year: <b>{movie.movie.created}</b>
@@ -451,109 +650,21 @@ export function DetailComponent(movie) {
 						<span>
 							AP: <b>{rating}</b> ({ratingNumber})
 						</span>
+						{/* <span>
+							Reviews: <b>{comments.length + replies.length}</b>
+						</span> */}
 					</div>
 					<div
 						style={{
 							display: "flex",
-							flexDirection: "column",
-							alignItems: "start",
+							// flexDirection: "column",
+							// alignItems: "start",
+							justifyContent: "space-between",
+							// gap: "100px",
+							// paddingRight: "100px",
+							alignItems: "center",
 						}}
 					>
-						{user ? (
-							<div
-								style={{
-									margin: "10px 0",
-								}}
-							>
-								<h4
-									style={{
-										marginBottom: "10px",
-									}}
-								>
-									Star Rating: {selectedStars} stars
-								</h4>
-								<div
-									style={{
-										display: "flex",
-										alignItems: "center",
-										gap: "10px",
-									}}
-								>
-									{isRated ? (
-										<div
-											style={{
-												fontSize: "20px",
-											}}
-											title="You have already rated"
-										>
-											{[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((starCount) => (
-												<span
-													key={starCount}
-													style={{
-														cursor: "not-allowed",
-														color: starCount <= selectedStars ? "gold" : "gray",
-													}}
-													// onClick={() => handleStarClick(starCount)}
-												>
-													&#9733;
-												</span>
-											))}
-										</div>
-									) : (
-										<div
-											style={{
-												fontSize: "20px",
-											}}
-										>
-											{[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((starCount) => (
-												<span
-													key={starCount}
-													style={{
-														cursor: "pointer",
-														color: starCount <= selectedStars ? "gold" : "gray",
-													}}
-													onClick={() => handleStarClick(starCount)}
-												>
-													&#9733;
-												</span>
-											))}
-										</div>
-									)}
-									{isRated ? (
-										<span
-											title="You have already rated"
-											style={{
-												fontSize: "18px",
-												padding: "0 12px",
-												border: "1px solid #fff",
-												cursor: "not-allowed",
-											}}
-											// onClick={() => {
-											// 	sendRating();
-											// }}
-										>
-											Rate
-										</span>
-									) : (
-										<span
-											style={{
-												fontSize: "18px",
-												padding: "0 12px",
-												border: "1px solid #fff",
-												cursor: "pointer",
-											}}
-											onClick={() => {
-												sendRating();
-											}}
-										>
-											Rate
-										</span>
-									)}
-								</div>
-							</div>
-						) : (
-							<></>
-						)}
 						<span style={{}}>
 							Genres:
 							<br />
@@ -914,15 +1025,15 @@ export function DetailComponent(movie) {
 															style={{
 																width: "60px",
 																height: "60px",
-																backgroundImage: `url(${comment.author.picture})`,
+																backgroundImage: `url(http://127.0.0.1:8000${comment.author.picture})`,
 																backgroundPosition: "center",
 																backgroundSize: "cover",
 																borderRadius: "50%",
-																border: "3px solid gold",
+																border: "3px solid green",
 															}}
 														></div>
 													</Link>
-													<span style={{ color: "gold" }}>
+													<span style={{ color: "green" }}>
 														{comment.author.username}
 													</span>
 												</div>
@@ -974,7 +1085,7 @@ export function DetailComponent(movie) {
 													<span
 														style={{
 															width: "80%",
-															color: "gold",
+															color: "green",
 														}}
 													>
 														<b>{comment.text}</b>
@@ -997,8 +1108,8 @@ export function DetailComponent(movie) {
 															gap: "15px",
 														}}
 													>
-														{liked |
-														disliked |
+														{comment.liked.includes(user.id) |
+														comment.disliked.includes(user.id) |
 														(user.id == comment.author.id) ? (
 															<>
 																<div
@@ -1057,7 +1168,7 @@ export function DetailComponent(movie) {
 																		src="../like.png"
 																		alt=""
 																		onClick={() => {
-																			sendLike(comment.id, "test");
+																			sendLike(comment.id, user.id);
 																		}}
 																	/>
 																</div>
@@ -1078,7 +1189,7 @@ export function DetailComponent(movie) {
 																		src="../dislike.png"
 																		alt=""
 																		onClick={() => {
-																			sendDislike(comment.id, "test");
+																			sendDislike(comment.id, user.id);
 																		}}
 																	/>
 																</div>
@@ -1159,11 +1270,11 @@ export function DetailComponent(movie) {
 																					backgroundPosition: "center",
 																					backgroundSize: "cover",
 																					borderRadius: "50%",
-																					border: "3px solid gold",
+																					border: "3px solid green",
 																				}}
 																			></div>
 																		</Link>
-																		<span style={{ color: "gold" }}>
+																		<span style={{ color: "green" }}>
 																			{reply.author.username}
 																		</span>
 																	</div>
@@ -1198,7 +1309,7 @@ export function DetailComponent(movie) {
 																<div
 																	style={{
 																		padding: "10px 0px 10px 13px",
-																		color: "gold",
+																		color: "green",
 																		display: "flex",
 																		justifyContent: "space-between",
 																	}}
@@ -1305,29 +1416,6 @@ export function DetailComponent(movie) {
 					) : (
 						<h3>No comments yet</h3>
 					)}
-				</div>
-				<div
-					className="favourites"
-					style={{
-						display: "flex",
-						gap: "5px",
-						alignItems: "center",
-						justifyContent: "center",
-						cursor: "pointer",
-						padding: "8px 10px",
-						border: "1px solid #fff",
-						width: "200px",
-					}}
-				>
-					<img
-						src="../star.png"
-						style={{
-							width: "22px",
-							height: "22px",
-						}}
-						alt=""
-					/>
-					<span>Add to favourites</span>
 				</div>
 			</section>
 			<Footer />

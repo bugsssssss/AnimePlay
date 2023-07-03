@@ -83,10 +83,10 @@ class User(AbstractUser):
     carma = models.IntegerField(("carma"),blank=True, null=True)
     about = models.TextField(("about"),blank=True, null=True)
     history = models.ManyToManyField("mainapp.Movie", verbose_name=("history"),blank=True, null=True)
-    following = models.ManyToManyField("self", verbose_name=("following"), blank=True, null=True, related_name="following")
-    followers = models.ManyToManyField("self", verbose_name=("followers"), blank=True, null=True, related_name="followers")
+    following = models.ManyToManyField("self", verbose_name=("following"), blank=True, null=True, symmetrical=False, related_name='folloing')
+    followers = models.ManyToManyField("self", verbose_name=("followers"), blank=True, null=True,symmetrical=False)
     logged = models.DateTimeField(("last seen"), auto_now=True, auto_now_add=False)
-    favourites = models.ManyToManyField("self", verbose_name=("favourites"), blank=True, null=True, related_name="favourites")
+    favourites = models.ManyToManyField("mainapp.Movie", verbose_name=("favourites"), blank=True, null=True, related_name="favourites")
     created = models.DateTimeField(("created"), auto_now=False, auto_now_add=True)
     updated = models.DateTimeField(("updated"), auto_now=True, auto_now_add=False)
     groups = models.ManyToManyField(Group, verbose_name=("groups"), blank=True, related_name="User")
@@ -94,6 +94,17 @@ class User(AbstractUser):
     # Add related_name to user_permissions field
     user_permissions = models.ManyToManyField(Permission, verbose_name=("user permissions"), blank=True, related_name="User")
 
+    def add_follower(self, user):
+        self.followers.add(user)
+
+    def remove_follower(self, user):
+        self.followers.remove(user)
+
+    def add_following(self, user):
+        self.following.add(user)
+
+    def remove_following(self, user):
+        self.following.remove(user)
 
     def __str__(self) -> str:
         return self.name
@@ -179,8 +190,8 @@ class Review(models.Model):
     author = models.ForeignKey("mainapp.User", verbose_name=("author"), on_delete=models.CASCADE)
     movie = models.ForeignKey("mainapp.Movie", verbose_name=("movie"), on_delete=models.CASCADE)
     text = models.TextField(("text"))
-    likes = models.IntegerField(("likes"), default=0)
-    dislikes = models.IntegerField(("dislikes"), default=0)
+    liked = models.ManyToManyField("mainapp.User", verbose_name=("liked"), blank=True, null=True, symmetrical=False, related_name='liked')
+    disliked = models.ManyToManyField("mainapp.User", verbose_name=("disliked"), blank=True, null=True,symmetrical=False, related_name='disliked')
     created = models.DateTimeField(("created"), auto_now=False, auto_now_add=True)
 
 
@@ -227,6 +238,7 @@ class Movie(models.Model):
     title_eng = models.CharField(("english title"), max_length=255, blank=True, null=True)
     released = models.CharField('released year', max_length=4)
     picture = models.ImageField(("picture"), upload_to=f'movies/pictures', default='movies/pictures/poster.jpg')
+    background = models.ImageField(("background"), upload_to=f'movies/pictures', default='movies/pictures/poster.jpg')
     country = models.CharField(("country"), max_length=255, blank=True, null=True)
     category = models.ForeignKey('mainapp.Category', related_name='category', on_delete=models.CASCADE, blank=True, null=True)
     genres = models.ManyToManyField("mainapp.Genre", verbose_name=("genres"),blank=True, null=True)
@@ -239,22 +251,20 @@ class Movie(models.Model):
     budget = models.IntegerField(("budget"),blank=True, null=True)
     ratingIMDB = models.FloatField(("rating IMDB"),blank=True, null=True)
     ratingKP = models.FloatField(("rating KP"),blank=True, null=True)
-    ratingAP = models.FloatField(("rating AnimePlay"), blank=True)
+    ratingAP = models.FloatField(("rating AnimePlay"), blank=True, default=0)
     status = models.CharField(("status"), max_length=50, choices=status_choises, default='Not released')
     manga = models.URLField(("manga url"), max_length=200, blank=True, null=True)
     file = models.FileField(("file"), upload_to=f'movies/videos', max_length=100,validators=[FileExtensionValidator(allowed_extensions=['MOV','avi','mp4','webm','mkv'])], blank=True, null=True)
-
-
-
-    created = models.DateTimeField(("created"), auto_now=False, auto_now_add=True)
+    created = models.DateTimeField(("created"), auto_now_add=True, editable=False)
     updated = models.DateField('updated', auto_now=True)
 
     def __str__(self) -> str:
-        return self.title_eng
+        return self.title_original
     
     class Meta:
             verbose_name = 'Movie'
             verbose_name_plural = 'Movies'
+            ordering =['-created']
 
 
 
@@ -397,9 +407,11 @@ class NewsComment(models.Model):
 
 
 
+
+
+
 class Message(models.Model): 
-    from_who = models.ManyToManyField("mainapp.User", verbose_name=("from_who"), blank=True, null=True, related_name="from_who")
-    to_whom = models.ManyToManyField("mainapp.User", verbose_name=("to_whom"), blank=True, null=True, related_name="to_whom")
+    sender = models.ForeignKey('mainapp.User', on_delete=models.CASCADE, related_name='sent_messages')
     text = models.TextField(("text"))
     has_seen = models.BooleanField(("has seen"), default=False)
     created = models.DateTimeField(("created"), auto_now=False, auto_now_add=True)
@@ -407,7 +419,22 @@ class Message(models.Model):
     class Meta:
         verbose_name = 'Message'
         verbose_name_plural = 'Messages'
-        ordering = ['-created']
+        # ordering = ['-created']
+
+
+
+class Chat(models.Model):
+
+    name = models.CharField(("name"), max_length=100)
+    messages = models.ManyToManyField("mainapp.Message", verbose_name=("messages"))
+
+    class Meta:
+        verbose_name = ("Chat")
+        verbose_name_plural = ("Chats")
+
+    def __str__(self):
+        return f'{self.id}'
+
 
 
 class Forum(models.Model):

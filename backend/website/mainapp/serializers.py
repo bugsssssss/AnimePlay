@@ -46,7 +46,7 @@ class UserUpdate(serializers.ModelSerializer):
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
-        fields = ['from_who', 'to_whom', 'has_seen','text']
+        fields = '__all__'
         
 
 
@@ -163,6 +163,18 @@ class MovieSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     
+class MovieCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Movie
+        fields = [
+            'picture', 
+            'title_original',
+            'age',
+            'released',
+            'quality',
+            'status',
+            'author'
+        ]
 
 
 
@@ -238,3 +250,11 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta: 
         model = Review
         fields = '__all__'
+
+
+
+class FavouriteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['id','username','favourites']

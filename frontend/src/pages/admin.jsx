@@ -29,6 +29,7 @@ export const Admin = () => {
 		admin: "",
 	});
 	const [isAdmin, setIsAdmin] = useState("");
+	const [isAddingMovie, setIsAddingMovie] = useState(false);
 
 	localStorage.setItem("chosenMovies", chosenMovies);
 
@@ -40,6 +41,7 @@ export const Admin = () => {
 		let collectionItem = document.getElementById("collection-item");
 		let newsItem = document.getElementById("news-item");
 		let usersItem = document.getElementById("users-item");
+		let movieItem = document.getElementById("movie-item");
 
 		setCategory(category);
 
@@ -49,30 +51,42 @@ export const Admin = () => {
 			collectionItem.classList.remove("active");
 			newsItem.classList.remove("active");
 			usersItem.classList.remove("active");
+			movieItem.classList.remove("active");
 		} else if (category == "reviews") {
 			feedbacksItem.classList.remove("active");
 			reviewItem.classList.add("active");
 			collectionItem.classList.remove("active");
 			newsItem.classList.remove("active");
 			usersItem.classList.remove("active");
+			movieItem.classList.remove("active");
 		} else if (category == "collections") {
 			feedbacksItem.classList.remove("active");
 			reviewItem.classList.remove("active");
 			collectionItem.classList.add("active");
 			newsItem.classList.remove("active");
 			usersItem.classList.remove("active");
+			movieItem.classList.remove("active");
 		} else if (category == "news") {
 			feedbacksItem.classList.remove("active");
 			reviewItem.classList.remove("active");
 			collectionItem.classList.remove("active");
 			newsItem.classList.add("active");
 			usersItem.classList.remove("active");
+			movieItem.classList.remove("active");
 		} else if (category == "users") {
 			feedbacksItem.classList.remove("active");
 			reviewItem.classList.remove("active");
 			collectionItem.classList.remove("active");
 			newsItem.classList.remove("active");
 			usersItem.classList.add("active");
+			movieItem.classList.remove("active");
+		} else {
+			feedbacksItem.classList.remove("active");
+			reviewItem.classList.remove("active");
+			collectionItem.classList.remove("active");
+			newsItem.classList.remove("active");
+			movieItem.classList.add("active");
+			usersItem.classList.remove("active");
 		}
 	};
 
@@ -375,6 +389,46 @@ export const Admin = () => {
 		}
 	};
 
+	const handleIsMovieAdding = async (boolean) => {
+		setIsAddingMovie(boolean);
+	};
+
+	let sendData = async (e) => {
+		e.preventDefault();
+		console.log("Form submitted");
+		let formData = new FormData();
+		formData.append("title_original", e.target.title.value);
+		formData.append("released", e.target.released.value);
+		formData.append("age", e.target.age.value);
+		formData.append("quality", e.target.quality.value);
+		formData.append("status", e.target.status.value);
+		formData.append("author", user.id);
+
+		let fileInput = e.target.picture;
+		if (fileInput.files.length > 0) {
+			formData.append("picture", fileInput.files[0]);
+		}
+
+		let response = await fetch(`http://127.0.0.1:8000/api/movie-add/`, {
+			method: "PATCH",
+			body: formData,
+		});
+		let data = await response.json();
+
+		if (response.status === 200) {
+		}
+	};
+
+	const deleteMovie = async (id) => {
+		let response = await fetch(
+			`http://127.0.0.1:8000/api/movie-add/?delete=${id}`
+		);
+
+		if (response.ok) {
+			fetchMovies("all");
+		}
+	};
+
 	useEffect(() => {
 		getNews(newsAuthor);
 	}, [newsAuthor]);
@@ -403,6 +457,9 @@ export const Admin = () => {
 			fetchUsers();
 			console.log(users);
 			// }
+		} else if (category == "movies") {
+			fetchMovies("all");
+			console.log(allMovies);
 		}
 	}, [category]);
 
@@ -473,6 +530,15 @@ export const Admin = () => {
 						}}
 					>
 						Users
+					</Link>
+				</li>
+				<li className="categories__list-item" id="movie-item">
+					<Link
+						onClick={() => {
+							handleClick("movies");
+						}}
+					>
+						Movies
 					</Link>
 				</li>
 			</ul>
@@ -1492,6 +1558,287 @@ export const Admin = () => {
 							)}
 						</tbody>
 					</table>
+				</>
+			) : (
+				<></>
+			)}
+
+			{category == "movies" ? (
+				<>
+					{isAddingMovie ? (
+						<>
+							<h2
+								style={{
+									textAlign: "center",
+								}}
+							>
+								New movie:
+							</h2>
+							<form
+								encType="multipart/form-data"
+								style={{
+									width: "60%",
+									display: "flex",
+									flexDirection: "column",
+									gap: "10px",
+									margin: "0 auto",
+								}}
+								onSubmit={sendData}
+							>
+								{" "}
+								<div
+									style={{
+										display: "flex",
+										flexDirection: "column",
+										gap: "10px",
+									}}
+								>
+									<label htmlFor="picture">Select poster:</label>
+									<input
+										style={{
+											width: "100%",
+										}}
+										type="file"
+										name="picture"
+										id="picture"
+										accept="image/*"
+									/>
+								</div>
+								<div
+									style={{
+										display: "flex",
+										flexDirection: "column",
+										gap: "5px",
+									}}
+								>
+									<label htmlFor="title">Original title:</label>
+									<input
+										style={{
+											padding: "2px 6px",
+											border: "1px solid #fff",
+											background: "transparent",
+											color: "#fff",
+										}}
+										type="text"
+										name="title"
+										id="title"
+									/>
+								</div>
+								<div
+									style={{
+										display: "flex",
+										flexDirection: "column",
+										gap: "5px",
+									}}
+								>
+									<label htmlFor="age">Age:</label>
+									<input
+										style={{
+											padding: "2px 6px",
+											border: "1px solid #fff",
+											background: "transparent",
+											color: "#fff",
+										}}
+										type="text"
+										name="age"
+										id="age"
+									/>
+								</div>
+								<div
+									style={{
+										display: "flex",
+										flexDirection: "column",
+										gap: "5px",
+									}}
+								>
+									<label htmlFor="released">Released year:</label>
+									<input
+										style={{
+											padding: "2px 6px",
+											border: "1px solid #fff",
+											background: "transparent",
+											color: "#fff",
+										}}
+										type="text"
+										name="released"
+										id="released"
+									/>
+								</div>
+								<div
+									style={{
+										display: "flex",
+										flexDirection: "column",
+										gap: "5px",
+									}}
+								>
+									<label htmlFor="quality">Quality: </label>
+									<select name="quality" id="quality">
+										<option value="SD">SD</option>
+										<option value="HD">HD</option>
+										<option value="FullHD">FULLHD</option>
+									</select>
+								</div>
+								<div
+									style={{
+										display: "flex",
+										flexDirection: "column",
+										gap: "5px",
+									}}
+								>
+									<label htmlFor="status">Status: </label>
+									<select name="status" id="status">
+										<option value="Not released">not released</option>
+										<option value="Canceled">canceled</option>
+										<option value="Published">published</option>
+									</select>
+								</div>
+								<div
+									style={{
+										display: "flex",
+									}}
+								>
+									<input
+										style={{
+											padding: "8px 16px",
+											border: "1px solid #fff",
+											cursor: "pointer",
+											margin: "20px auto",
+										}}
+										onClick={() => {
+											// handleIsEditing(false);
+										}}
+										type="submit"
+										value="SAVE"
+									></input>
+									<span
+										style={{
+											padding: "8px 16px",
+											border: "1px solid #fff",
+											cursor: "pointer",
+											margin: "20px auto",
+										}}
+										onClick={() => {
+											handleIsMovieAdding(false);
+										}}
+									>
+										CANCEL
+									</span>
+								</div>
+							</form>
+						</>
+					) : (
+						<div
+							style={{
+								display: "flex",
+								flexDirection: "column",
+								gap: "10px",
+								position: "relative",
+							}}
+						>
+							{allMovies.map((movie) => {
+								return (
+									<div
+										style={{
+											border: "1px solid #fff",
+											padding: "8px 12px",
+											display: "flex",
+											gap: "10px",
+										}}
+									>
+										<div
+											onClick={() => {}}
+											className="movies__container-item"
+											style={{
+												backgroundImage: `url(http://127.0.0.1:8000${movie.picture})`,
+												position: "relative",
+												transition: "0.5s",
+												transform: "none",
+												color: "#fff",
+												opacity: "unset",
+												cursor: "pointer",
+
+												"&:hover": {
+													transform: "none",
+													cursor: "pointer",
+													opacity: "unset",
+												},
+											}}
+										>
+											<div
+												className="movie__container-item-wrapper"
+												style={{
+													display: "flex",
+													justifyContent: "center",
+												}}
+											>
+												<span className="movie__container_item-title">
+													{movie.title_eng}
+												</span>
+											</div>
+										</div>
+										<div
+											style={{
+												display: "flex",
+												flexDirection: "column",
+												gap: "10px",
+												width: "50%",
+												margin: "10px",
+											}}
+										>
+											<span>Title: {movie.title_eng}</span>
+											<span>Description: {movie.description}</span>
+											<span>Created: {movie.created}</span>
+											<span>Updated: {movie.updated}</span>
+											<div
+												style={{
+													display: "flex",
+													gap: "10px",
+												}}
+											>
+												<img
+													src="../edit.png"
+													alt=""
+													style={{
+														width: "22px",
+														cursor: "pointer",
+														marginTop: "20px",
+													}}
+													onClick={() => {}}
+												/>
+												<img
+													src="../trash.png"
+													alt=""
+													style={{
+														width: "22px",
+														cursor: "pointer",
+														marginTop: "20px",
+													}}
+													onClick={() => {
+														deleteMovie(movie.id);
+													}}
+												/>
+											</div>
+										</div>
+									</div>
+								);
+							})}
+							<span
+								style={{
+									padding: "8px 16px",
+									border: "1px solid #fff",
+									cursor: "pointer",
+									position: "absolute",
+									right: "0",
+									top: "-50px",
+								}}
+								onClick={() => {
+									handleIsMovieAdding(true);
+								}}
+							>
+								ADD
+							</span>
+						</div>
+					)}
 				</>
 			) : (
 				<></>

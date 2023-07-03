@@ -28,8 +28,9 @@ urlpatterns = [
     path('/news-comments/', NewsCommentApiView.as_view(), name='news-comments'),
     path('/user-update/<int:pk>/', UserUpdateView.as_view(), name='user-update'),
     path('/messages/', MessageCreateApiView.as_view(), name='messages'),
-
-
+    path('/chat/', ChatApiView.as_view(), name='chat'),
+    path('/movie-add/', MovieCreateView.as_view(), name='add'),
+    path('/favourites-add/', Favourite.as_view(), name='favorite'),
 ]
 
 if settings.DEBUG:
