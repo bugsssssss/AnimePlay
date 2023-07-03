@@ -11,6 +11,7 @@ import { Header } from "../header/header";
 export function DetailComponent(movie) {
 	const { movieDetail } = useContext(MovieContext);
 	const { user } = useContext(AuthContext);
+	const [userDetail, setUserDetail] = useState();
 	const [comments, setComments] = useState([]);
 	const [inputText, setInputText] = useState("");
 	const [isFullScreen, setIsFullScreeen] = useState(false);
@@ -22,6 +23,22 @@ export function DetailComponent(movie) {
 	const [selectedStars, setSelectedStars] = useState(0);
 	const [isRated, setIsRated] = useState(false);
 	const [ratingNumber, setRatingNumber] = useState(0);
+	const [isFavourite, setIsFavourite] = useState(false);
+
+	const getFullUser = async () => {
+		let response = await fetch(
+			`http://127.0.0.1:8000/api/users-detail/?id=${user.id}`
+		);
+
+		if (response.ok) {
+			let data = await response.json();
+			setUserDetail(data);
+			if (data.favourites.includes(movie.movie.id)) {
+				setIsFavourite(true);
+				console.log("favourite");
+			}
+		}
+	};
 
 	const handleStarClick = (starCount) => {
 		setSelectedStars(starCount);
@@ -257,6 +274,19 @@ export function DetailComponent(movie) {
 		);
 
 		if (response.ok) {
+			setIsFavourite(true);
+			getFullUser();
+		}
+	};
+
+	const removeFavourite = async (movie_id, user_id) => {
+		let response = await fetch(
+			`http://127.0.0.1:8000/api/favourites-add/?remove=${movie_id}&user=${user_id}`
+		);
+
+		if (response.ok) {
+			setIsFavourite(false);
+			getFullUser();
 		}
 	};
 
@@ -410,6 +440,7 @@ export function DetailComponent(movie) {
 		getComments();
 		getRating();
 		getReplies();
+		getFullUser();
 	}, []);
 
 	return (
@@ -469,28 +500,60 @@ export function DetailComponent(movie) {
 									alignSelf: "flex-end",
 								}}
 							>
-								<div
-									className="favourites"
-									style={{
-										display: "flex",
-										gap: "5px",
-										alignItems: "center",
-										justifyContent: "center",
-										cursor: "pointer",
-										padding: "8px 10px",
-										border: "1px solid #fff",
-									}}
-								>
-									<img
-										src="../star.png"
+								{isFavourite ? (
+									<div
+										className="favourites"
 										style={{
-											width: "22px",
-											height: "22px",
+											display: "flex",
+											gap: "5px",
+											alignItems: "center",
+											justifyContent: "center",
+											cursor: "pointer",
+											padding: "8px 10px",
+											border: "1px solid #fff",
 										}}
-										alt=""
-									/>
-									<span>Add to favourites</span>
-								</div>
+										onClick={() => {
+											removeFavourite(movie.movie.id, user.id);
+										}}
+									>
+										<img
+											src="../star1.png"
+											style={{
+												width: "22px",
+												height: "22px",
+											}}
+											alt=""
+										/>
+										<span>Favourites</span>
+									</div>
+								) : (
+									<div
+										className="favourites"
+										style={{
+											display: "flex",
+											gap: "5px",
+											alignItems: "center",
+											justifyContent: "center",
+											cursor: "pointer",
+											padding: "8px 10px",
+											border: "1px solid #fff",
+										}}
+										onClick={() => {
+											addFavourite(movie.movie.id, user.id);
+										}}
+									>
+										<img
+											src="../star.png"
+											style={{
+												width: "22px",
+												height: "22px",
+											}}
+											alt=""
+										/>
+										<span>Add to favourites</span>
+									</div>
+								)}
+
 								<div
 									style={{
 										display: "flex",

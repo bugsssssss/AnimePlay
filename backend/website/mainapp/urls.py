@@ -31,6 +31,7 @@ urlpatterns = [
     path('/chat/', ChatApiView.as_view(), name='chat'),
     path('/movie-add/', MovieCreateView.as_view(), name='add'),
     path('/favourites-add/', Favourite.as_view(), name='favorite'),
+    path('/favourites/', FavouritesListView.as_view(), name='favorite-list'),
 ]
 
 if settings.DEBUG:

@@ -684,6 +684,17 @@ class Favourite(APIView):
     def get(self, request):
         movie_id = request.GET.get('id')
         user_id = request.GET.get('user')
+        remove = request.GET.get('remove')
+
+        if remove and user_id:
+            try:
+                user_instance = User.objects.get(id=user_id)
+                movie_instance = Movie.objects.get(id=remove)
+                user_instance.favourites.remove(movie_instance)
+                user_instance.save()
+                return Response(True)
+            except:
+                return False
 
         if movie_id and user_id:
             try:
@@ -700,3 +711,25 @@ class Favourite(APIView):
 class FavouriteCreateApi(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = FavouriteSerializer
+
+
+
+class FavouritesListView(APIView):
+
+    def get(self, request):
+        user_id = request.GET.get('user')
+
+        if user_id:
+            try:
+                instance = User.objects.get(id=user_id)
+                arr = instance.favourites.all()
+                return Response([
+                    {
+                        'id': x.id,
+                        'picture': x.picture.url,
+                        'title_eng': x.title_eng,
+                        'title_original': x.title_original
+                     } for x in arr]
+                    )
+            except: 
+                return Response(False)

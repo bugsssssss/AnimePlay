@@ -11,9 +11,30 @@ import { AuthContext } from "../../context/AuthContext";
 export function Collections() {
 	const [collections, setCollections] = useState([]);
 	const { movieDetail, setMovieDetail } = useContext(MovieContext);
+	const [favourites, setFavourites] = useState([]);
 	const { name } = useParams();
+	const { user } = useContext(AuthContext);
 
 	const { username } = useContext(AuthContext);
+
+	const getFavourites = async () => {
+		let response = await fetch(
+			`http://127.0.0.1:8000/api/favourites/?user=${user.id}`
+		);
+
+		if (response.ok) {
+			let data = await response.json();
+			console.log(data);
+			let obj = {
+				id: user.id,
+				name: "Favourites",
+				position: 1,
+				movies: data,
+			};
+			setFavourites(obj);
+			setCollections([...data, obj]);
+		}
+	};
 
 	async function fetchCollections() {
 		let response = await fetch("http://127.0.0.1:8000/api/collections/");
@@ -28,7 +49,8 @@ export function Collections() {
 
 	async function GetCollections() {
 		let data = await fetchCollections();
-		setCollections(data);
+		console.log(data, favourites);
+		setCollections([data]);
 	}
 
 	function HandleClick(movieId) {
@@ -37,6 +59,7 @@ export function Collections() {
 
 	useEffect(() => {
 		GetCollections();
+		getFavourites();
 	}, []);
 
 	console.log(collections);

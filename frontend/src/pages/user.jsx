@@ -722,19 +722,7 @@ export const User = () => {
 				<span></span>
 			)}
 
-			{category == "collections" ? (
-				<>
-					<h2
-						style={{
-							textAlign: "center",
-						}}
-					>
-						Collections
-					</h2>
-				</>
-			) : (
-				<></>
-			)}
+			{category == "collections" ? <></> : <></>}
 			<div
 				style={{
 					position: "absolute",
